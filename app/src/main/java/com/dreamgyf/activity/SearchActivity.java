@@ -1,6 +1,7 @@
 package com.dreamgyf.activity;
 
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,11 +16,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dreamgyf.R;
 import com.dreamgyf.adapter.recyclerView.SearchSingleResultAdapter;
 import com.dreamgyf.adapter.viewPager.SearchSingleViewPagerAdapter;
+import com.dreamgyf.broadcastReceiver.PlayerBarBroadcastReceiver;
 import com.dreamgyf.entity.Song;
 import com.dreamgyf.service.CallAPI;
 import com.dreamgyf.service.PlayMusicService;
@@ -53,18 +57,36 @@ public class SearchActivity extends AppCompatActivity {
 
     private RecyclerView searchSingleViewPageRecyclerView;
 
+    private ImageView playerBarImageView;
+
+    private TextView playerBarTitleTextView;
+
+    private TextView playerBarSubtitleTextView;
+
+    private ImageView playerBarPlayButton;
+
+    private PlayerBarBroadcastReceiver playerBarBroadcastReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
         resources = getResources();
         initToolbar();
+        initPlayerBar();
         //隐藏标签栏
         tabLayout = findViewById(R.id.tab_layout);
         tabLayout.setVisibility(View.GONE);
 
         playMusicService = new Intent(this, PlayMusicService.class);
 
+        playerBarBroadcastReceiver = new PlayerBarBroadcastReceiver(this);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(PlayMusicService.UPDATE_PLAYER_ACTION);
+        registerReceiver(playerBarBroadcastReceiver,intentFilter);
+        Intent broadcastIntent = new Intent(PlayMusicService.PLAY_ACTION);
+        broadcastIntent.putExtra("getInfo",1);
+        sendBroadcast(broadcastIntent);
     }
 
     private void initToolbar()
@@ -112,7 +134,7 @@ public class SearchActivity extends AppCompatActivity {
                                         @Override
                                         public void onItemClick(RecyclerView recyclerView, View view, int position, Song song) {
                                             Toast.makeText(SearchActivity.this,song.getName(),Toast.LENGTH_SHORT).show();
-                                            playMusicService.putExtra("songId",song.getId());
+                                            playMusicService.putExtra("song",song);
                                             startService(playMusicService);
                                         }
                                     });
@@ -153,5 +175,26 @@ public class SearchActivity extends AppCompatActivity {
 
         tabLayout.setupWithViewPager(viewPager);
         tabLayout.getTabAt(0).setText("单曲");
+    }
+
+    private void initPlayerBar(){
+        playerBarImageView = findViewById(R.id.player_bar_image_view);
+        playerBarTitleTextView = findViewById(R.id.player_bar_title_text_view);
+        playerBarSubtitleTextView = findViewById(R.id.player_bar_subtitle_text_view);
+        playerBarPlayButton = findViewById(R.id.player_bar_play_button);
+
+        playerBarImageView.setImageDrawable(resources.getDrawable(R.drawable.default_album_pic));
+        playerBarTitleTextView.setText("未知");
+        playerBarSubtitleTextView.setText("未知");
+        playerBarPlayButton.setImageDrawable(resources.getDrawable(R.drawable.playbar_play_icon));
+
+        playerBarPlayButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(PlayMusicService.PLAY_ACTION);
+                intent.putExtra("playOrPause",1);
+                sendBroadcast(intent);
+            }
+        });
     }
 }

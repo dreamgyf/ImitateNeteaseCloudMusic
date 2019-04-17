@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ImageView
+        android:id="@+id/player_bar_image_view"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="7dp"/>
+
+    <TextView
+        android:id="@+id/player_bar_title_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="@color/colorFontBlack"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="7dp"
+        app:layout_constraintStart_toEndOf="@+id/player_bar_image_view"
+        android:layout_marginStart="7dp"/>
+
+    <TextView
+        android:id="@+id/player_bar_subtitle_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textColor="@color/infoFont"
+        app:layout_constraintTop_toBottomOf="@+id/player_bar_title_text_view"
+        android:layout_marginTop="7dp"
+        app:layout_constraintStart_toEndOf="@+id/player_bar_image_view"
+        android:layout_marginStart="7dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="7dp"/>
+
+    <ImageView
+        android:id="@+id/player_bar_play_button"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="10dp"/>
+    
+</android.support.constraint.ConstraintLayout>
