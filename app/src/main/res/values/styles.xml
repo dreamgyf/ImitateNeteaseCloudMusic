@@ -3,9 +3,11 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorNeteaseRed</item>
-        <item name="colorPrimaryDark">@color/colorNeteaseRed</item>
+        <!--<item name="colorPrimary">@color/colorNeteaseRed</item>-->
+        <!--<item name="colorPrimaryDark">@color/colorNeteaseRed</item>-->
         <item name="colorAccent">@color/colorAccent</item>
+        <!--<item name="android:windowTranslucentStatus">false</item>-->
+        <!--<item name="android:windowTranslucentNavigation">true</item>-->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="searchViewStyle">@style/SearchViewStyle</item>
     </style>
@@ -14,4 +16,23 @@
         <item name="searchHintIcon">@null</item>
         <item name="closeIcon">@drawable/close_search_icon</item>
     </style>
+
+    <style name="AppTheme.MAIN" parent="AppTheme">
+        <item name="colorPrimaryDark">@color/colorNeteaseRed</item>
+    </style>
+
+    <style name="AppTheme.SEARCH" parent="AppTheme">
+        <item name="colorPrimaryDark">@color/colorNeteaseRed</item>
+    </style>
+    
+    <style name="PlayerToolBar.Title" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">17sp</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="PlayerToolBar.SubTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/infoFont</item>
+    </style>
+
 </resources>

@@ -57,6 +57,8 @@ public class SearchActivity extends AppCompatActivity {
 
     private RecyclerView searchSingleViewPageRecyclerView;
 
+    private View playerBar;
+
     private ImageView playerBarImageView;
 
     private TextView playerBarTitleTextView;
@@ -178,10 +180,20 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     private void initPlayerBar(){
+        playerBar = findViewById(R.id.player_bar);
         playerBarImageView = findViewById(R.id.player_bar_image_view);
         playerBarTitleTextView = findViewById(R.id.player_bar_title_text_view);
         playerBarSubtitleTextView = findViewById(R.id.player_bar_subtitle_text_view);
         playerBarPlayButton = findViewById(R.id.player_bar_play_button);
+
+        playerBar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(SearchActivity.this,PlayerActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.push_up_in,R.anim.no_action);
+            }
+        });
 
         playerBarImageView.setImageDrawable(resources.getDrawable(R.drawable.default_album_pic));
         playerBarTitleTextView.setText("未知");
