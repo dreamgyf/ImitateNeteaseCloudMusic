@@ -5,6 +5,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -38,7 +40,6 @@ public class PlayerBarBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         int status = intent.getIntExtra("status",-1);
         int change = intent.getIntExtra("change",-1);
-        int getInfo = intent.getIntExtra("getInfo",-1);
         switch(status){
             case 0:
                 playerBarPlayButton.setImageDrawable(resources.getDrawable(R.drawable.playbar_play_icon));
@@ -50,14 +51,12 @@ public class PlayerBarBroadcastReceiver extends BroadcastReceiver {
         if(change == 1){
             String title = intent.getStringExtra("title");
             String subtitle = intent.getStringExtra("subtitle");
+            byte[] bytes = intent.getByteArrayExtra("songPicByte");
+            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.length);
             playerBarTitleTextView.setText(title);
             playerBarSubtitleTextView.setText(subtitle);
-        }
-        if(getInfo == 1){
-            String title = intent.getStringExtra("title");
-            String subtitle = intent.getStringExtra("subtitle");
-            playerBarTitleTextView.setText(title);
-            playerBarSubtitleTextView.setText(subtitle);
+            playerBarImageView.setImageBitmap(bitmap);
+
         }
     }
 }

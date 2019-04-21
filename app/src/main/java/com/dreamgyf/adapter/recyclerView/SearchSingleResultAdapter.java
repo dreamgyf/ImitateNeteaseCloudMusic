@@ -1,5 +1,6 @@
 package com.dreamgyf.adapter.recyclerView;
 
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,12 +10,26 @@ import android.widget.TextView;
 
 import com.dreamgyf.R;
 import com.dreamgyf.entity.Song;
+import com.dreamgyf.service.CallAPI;
+import com.dreamgyf.service.ResponseProcessing;
 
+import org.json.JSONException;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class SearchSingleResultAdapter extends RecyclerView.Adapter<SearchSingleResultAdapter.SearchResultViewHolder> implements View.OnClickListener {
 
-    private List<Song> songs;
+    private ExecutorService executorService = Executors.newFixedThreadPool(5);
+
+    private Handler handler = new Handler();
+
+    private String keywords;
+
+    private List<Song> songs = new ArrayList<>();
 
     private RecyclerView recyclerView;
 
@@ -33,9 +48,7 @@ public class SearchSingleResultAdapter extends RecyclerView.Adapter<SearchSingle
         }
     }
 
-    public SearchSingleResultAdapter(List<Song> songs) {
-        this.songs = songs;
-    }
+    public SearchSingleResultAdapter() {}
 
     @NonNull
     @Override
@@ -92,5 +105,41 @@ public class SearchSingleResultAdapter extends RecyclerView.Adapter<SearchSingle
         {
             onItemClickListener.onItemClick(recyclerView,v,position,songs.get(position));
         }
+    }
+
+    public void addSongs(String keywords){
+        this.keywords = keywords;
+        addSongs();
+    }
+
+    public void addSongs(){
+        if(keywords == null)
+            throw new RuntimeException("no keywords");
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final String response;
+                try {
+                    response = CallAPI.get().search(keywords,1,songs.size());
+                    final List<Song> songList = ResponseProcessing.get().searchSingle(response);
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            songs.addAll(songList);
+                            notifyDataSetChanged();
+                        }
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        executorService.execute(thread);
+    }
+
+    public void clear(){
+        songs.clear();
     }
 }

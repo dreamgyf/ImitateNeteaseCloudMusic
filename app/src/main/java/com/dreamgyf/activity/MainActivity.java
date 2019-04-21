@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -81,14 +82,16 @@ public class MainActivity extends AppCompatActivity {
         initViewPager();
         initTabLayout();
         initPlayerBar();
+        initSongList();
 
         playerBarBroadcastReceiver = new PlayerBarBroadcastReceiver(this);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(PlayMusicService.UPDATE_PLAYER_ACTION);
-        registerReceiver(playerBarBroadcastReceiver,intentFilter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(playerBarBroadcastReceiver,intentFilter);
         Intent broadcastIntent = new Intent(PlayMusicService.PLAY_ACTION);
         broadcastIntent.putExtra("getInfo",1);
-        sendBroadcast(broadcastIntent);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
+
     }
 
     private void initToolbar()
@@ -241,9 +244,18 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(PlayMusicService.PLAY_ACTION);
                 intent.putExtra("playOrPause",1);
-                sendBroadcast(intent);
+                LocalBroadcastManager.getInstance(MainActivity.this).sendBroadcast(intent);
             }
         });
     }
 
+    private void initSongList(){
+        PlayMusicService.songList = new ArrayList<>();
+    }
+
+    @Override
+    protected void onDestroy() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(playerBarBroadcastReceiver);
+        super.onDestroy();
+    }
 }

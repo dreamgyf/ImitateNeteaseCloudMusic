@@ -9,6 +9,8 @@ import java.net.URL;
 
 public class CallAPI {
 
+    public final static int LIMIT = 20;
+
     private static SingleCallAPI singleCallAPI = new SingleCallAPI();
 
     public static SingleCallAPI get()
@@ -31,8 +33,15 @@ public class CallAPI {
             return out;
         }
 
-        public String search(String keywords) throws IOException {
-            URL url = new URL(DOMAIN + "/search?keywords=" + keywords);
+        public String search(String keywords,int type,int offset) throws IOException {
+            URL url = null;
+            switch(type)
+            {
+                case 1 :
+                    url = new URL(DOMAIN + "/search?type=1&keywords=" + keywords + "&limit=" + LIMIT + "&offset=" + offset);
+                    break;
+            }
+
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestMethod("GET");
             if(httpURLConnection.getResponseCode() != 200)
@@ -43,6 +52,18 @@ public class CallAPI {
 
         public String getSong(int id) throws IOException {
             URL url = new URL(DOMAIN + "/song/url?id=" + id);
+            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setRequestMethod("GET");
+            if(httpURLConnection.getResponseCode() != 200)
+                throw new RuntimeException(httpURLConnection.getResponseMessage());
+            InputStream in = httpURLConnection.getInputStream();
+            String res = read(in).toString();
+            httpURLConnection.disconnect();
+            return res;
+        }
+
+        public String songDetail(int id) throws IOException {
+            URL url = new URL(DOMAIN + "/song/detail?ids=" + id);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestMethod("GET");
             if(httpURLConnection.getResponseCode() != 200)

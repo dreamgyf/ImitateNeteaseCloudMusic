@@ -25,7 +25,41 @@
             app:layout_constraintTop_toTopOf="parent">
         </android.support.v7.widget.Toolbar>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@+id/control_bar">
+
+            <TextView
+                android:id="@+id/current_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_gravity="center_vertical"
+                android:textColor="#a0ffffff"
+                android:textSize="9sp"
+                android:text="00:00"/>
+
+            <SeekBar
+                android:id="@+id/seek_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:id="@+id/duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
+                android:layout_gravity="center_vertical"
+                android:textColor="#a0ffffff"
+                android:textSize="9sp"
+                android:text="04:00"/>
+
+        </LinearLayout>
+
         <android.support.constraint.ConstraintLayout
+            android:id="@+id/control_bar"
             android:layout_width="match_parent"
             android:layout_height="100dp"
             app:layout_constraintBottom_toBottomOf="parent">
