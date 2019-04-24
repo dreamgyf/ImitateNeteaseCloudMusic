@@ -37,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Resources resources;
 
+    public static String PATH;
+
     private List<View> viewList = new ArrayList<>();
 
     private Toolbar toolbar;
@@ -76,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         resources = getResources();
+        PATH = getExternalFilesDir("").getAbsolutePath();
 
         initToolbar();
         initDrawerToggle();
@@ -250,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initSongList(){
-        PlayMusicService.songList = new ArrayList<>();
+
     }
 
     @Override

@@ -73,7 +73,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:src="@drawable/sequence_play_mode_icon"/>
+                android:src="@drawable/order_play_mode_icon"/>
 
             <ImageView
                 android:id="@+id/previous_image_view"

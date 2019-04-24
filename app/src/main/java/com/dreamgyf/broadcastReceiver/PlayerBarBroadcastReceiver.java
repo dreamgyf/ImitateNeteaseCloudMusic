@@ -11,6 +11,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.dreamgyf.R;
+import com.dreamgyf.activity.MainActivity;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 public class PlayerBarBroadcastReceiver extends BroadcastReceiver {
 
@@ -51,11 +55,19 @@ public class PlayerBarBroadcastReceiver extends BroadcastReceiver {
         if(change == 1){
             String title = intent.getStringExtra("title");
             String subtitle = intent.getStringExtra("subtitle");
-            byte[] bytes = intent.getByteArrayExtra("songPicByte");
-            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.length);
+            int songPicId = intent.getIntExtra("songPicId",-1);
+            Bitmap bitmap = null;
+            if(songPicId != -1){
+                try {
+                    bitmap = BitmapFactory.decodeStream(new FileInputStream(MainActivity.PATH + "/pic/" + songPicId + ".jpg"));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
             playerBarTitleTextView.setText(title);
             playerBarSubtitleTextView.setText(subtitle);
-            playerBarImageView.setImageBitmap(bitmap);
+            if(bitmap != null)
+                playerBarImageView.setImageBitmap(bitmap);
 
         }
     }

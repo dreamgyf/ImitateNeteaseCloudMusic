@@ -9,54 +9,25 @@ import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.dreamgyf.entity.Song;
-import com.dreamgyf.entity.SongData;
-import com.kingsoft.media.httpcache.KSYProxyService;
-
-import org.json.JSONException;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class PlayMusicService extends Service {
 
-    private ExecutorService executorService;
-
     private MediaPlayer mediaPlayer;
 
-    private KSYProxyService ksyProxyService;
-
-    public static List<Song> songList;
-
-    private int songPosition;
-
-    private String path;
-
-    private SongData songData;
-
-    private Song song;
-
-    private File file;
-
-    private String proxyURL;
-
-    private byte[] songPicByte;
-
-    private int mode;
+    public static volatile String MODE = "ORDER";
 
     private MyReceiver myReceiver;
 
     public final static String PLAY_ACTION = "com.dreamgyf.action.PLAY_ACTION";
 
     public final static String UPDATE_PLAYER_ACTION = "com.dreamgyf.action.UPDATE_PLAYER_ACTION";
+
+    private String songName;
+
+    private String artists;
+
+    private int songPicId;
 
     public PlayMusicService() {
     }
@@ -65,10 +36,6 @@ public class PlayMusicService extends Service {
     public void onCreate() {
         super.onCreate();
         mediaPlayer = new MediaPlayer();
-        executorService = Executors.newFixedThreadPool(10);
-        path = getExternalFilesDir("").getAbsolutePath();
-        ksyProxyService = new KSYProxyService(this);
-        ksyProxyService.startServer();
     }
 
     @Override
@@ -78,99 +45,68 @@ public class PlayMusicService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, final int flags, int startId) {
-        if(mediaPlayer != null)
+        songName = intent.getStringExtra("songName");
+        artists = intent.getStringExtra("artists");
+        songPicId =intent.getIntExtra("songPicId",-1);
+        String dataSource = intent.getStringExtra("dataSource");
+        try {
             mediaPlayer.reset();
-        songData = null;
-        proxyURL = null;
-        songPicByte = null;
-        //默认为网络播放模式
-        mode = intent.getIntExtra("mode",1);
-        if(mode == 1){
-            final int songPosition = intent.getIntExtra("songPosition",-1);
-            if (songPosition == -1)
-                return super.onStartCommand(intent, flags, startId);
-            song = songList.get(songPosition);
-            Thread getSongFromNetThread = new Thread(new Runnable() {
+            mediaPlayer.setDataSource(dataSource);
+            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
-                public void run() {
-                    try {
-                        songData = ResponseProcessing.get().getSong(CallAPI.get().getSong(song.getId())).get(0);
-                        file = new File(path + "/songs/" + song.getId() + "." + songData.getType());
-                        if(!file.exists()){
-                            if(!file.getParentFile().exists()){
-                                if(!file.getParentFile().mkdirs())
-                                    throw new RuntimeException("create file error");
+                public void onPrepared(MediaPlayer mp) {
+                    mp.start();
+                    if(myReceiver == null){
+                            //绑定广播事件
+                            myReceiver = new MyReceiver();
+                            IntentFilter intentFilter = new IntentFilter();
+                            intentFilter.addAction(PLAY_ACTION);
+                            LocalBroadcastManager.getInstance(PlayMusicService.this).registerReceiver(myReceiver,intentFilter);
+                    }
+                    Intent broadcastIntent = new Intent(UPDATE_PLAYER_ACTION);
+                    broadcastIntent.putExtra("status",1);
+                    broadcastIntent.putExtra("change",1);
+                    broadcastIntent.putExtra("title",songName);
+                    broadcastIntent.putExtra("subtitle",artists);
+                    broadcastIntent.putExtra("songPicId",songPicId);
+                    broadcastIntent.putExtra("duration",mp.getDuration());
+                    LocalBroadcastManager.getInstance(PlayMusicService.this).sendBroadcast(broadcastIntent);
+                }
+            });
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    switch (MODE){
+                        case "ORDER":
+                            if(PlayMusicPrepareIntentService.songPosition < PlayMusicPrepareIntentService.songList.size() - 1){
+                                Intent playNext = new Intent(PlayMusicService.this,PlayMusicPrepareIntentService.class);
+                                playNext.putExtra("song",PlayMusicPrepareIntentService.songList.get(PlayMusicPrepareIntentService.songPosition + 1));
+                                startService(playNext);
                             }
-                            proxyURL = ksyProxyService.getProxyUrl(songData.getUrl());
-                            mediaPlayer.setDataSource(proxyURL);
-                            URL url = new URL(proxyURL);
-                            HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
-                            if(httpURLConnection.getResponseCode() != 200)
-                                throw new RuntimeException("error");
-                            final InputStream in = httpURLConnection.getInputStream();
-                            executorService.execute(new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try{
-                                        FileOutputStream fileOutputStream = new FileOutputStream(file);
-                                        int len;
-                                        byte[] buffer = new byte[1024];
-                                        while ((len = in.read(buffer)) > 0){
-                                            fileOutputStream.write(buffer,0,len);
-                                        }
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }));
-                        } else {
-                            mediaPlayer.setDataSource(new FileInputStream(file).getFD());
-                        }
-                        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                            @Override
-                            public void onPrepared(MediaPlayer mp) {
-                                executorService.execute(new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if(myReceiver == null){
-                                            //绑定广播事件
-                                            myReceiver = new MyReceiver();
-                                            IntentFilter intentFilter = new IntentFilter();
-                                            intentFilter.addAction(PLAY_ACTION);
-                                            LocalBroadcastManager.getInstance(PlayMusicService.this).registerReceiver(myReceiver,intentFilter);
-                                        }
-                                        Intent broadcastIntent = new Intent(UPDATE_PLAYER_ACTION);
-                                        broadcastIntent.putExtra("status",1);
-                                        broadcastIntent.putExtra("change",1);
-                                        broadcastIntent.putExtra("title",song.getName());
-                                        String artists = "";
-                                        for(int j = 0;j < song.getArtists().size();j++)
-                                        {
-                                            if(j == song.getArtists().size() - 1)
-                                                artists += song.getArtists().get(j).getName();
-                                            else
-                                                artists += song.getArtists().get(j).getName() + "/";
-                                        }
-                                        broadcastIntent.putExtra("subtitle",artists);
-                                        while (songPicByte == null);
-                                        broadcastIntent.putExtra("songPicByte",songPicByte);
-                                        broadcastIntent.putExtra("duration",mediaPlayer.getDuration());
-                                        LocalBroadcastManager.getInstance(PlayMusicService.this).sendBroadcast(broadcastIntent);
-                                        mediaPlayer.start();
-                                    }
-                                }));
+                            break;
+                        case "LIST_LOOP":
+                            if(PlayMusicPrepareIntentService.songPosition < PlayMusicPrepareIntentService.songList.size() - 1){
+                                Intent playNext = new Intent(PlayMusicService.this,PlayMusicPrepareIntentService.class);
+                                playNext.putExtra("song",PlayMusicPrepareIntentService.songList.get(PlayMusicPrepareIntentService.songPosition + 1));
+                                startService(playNext);
+                            } else {
+                                Intent playNext = new Intent(PlayMusicService.this,PlayMusicPrepareIntentService.class);
+                                playNext.putExtra("song",PlayMusicPrepareIntentService.songList.get(0));
+                                startService(playNext);
                             }
-                        });
-                        mediaPlayer.prepareAsync();
-                        songPicByte = ResponseProcessing.get().songPicByte(song.getId());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                            break;
+                        case "SINGLE_LOOP":
+                            mediaPlayer.seekTo(0);
+                            mediaPlayer.start();
+                            break;
+                        case "RANDOM":
+                            break;
                     }
                 }
             });
-            executorService.execute(getSongFromNetThread);
+            mediaPlayer.prepareAsync();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return super.onStartCommand(intent, flags, startId);
     }
@@ -203,21 +139,13 @@ public class PlayMusicService extends Service {
                     broadcastIntent.putExtra("status",0);
                 }
                 broadcastIntent.putExtra("change",1);
-                broadcastIntent.putExtra("title",song.getName());
-                String artists = "";
-                for(int j = 0;j < song.getArtists().size();j++)
-                {
-                    if(j == song.getArtists().size() - 1)
-                        artists += song.getArtists().get(j).getName();
-                    else
-                        artists += song.getArtists().get(j).getName() + "/";
-                }
+                broadcastIntent.putExtra("title",songName);
                 broadcastIntent.putExtra("subtitle",artists);
-                broadcastIntent.putExtra("songPicByte",songPicByte);
+                broadcastIntent.putExtra("songPicId",songPicId);
                 broadcastIntent.putExtra("duration",mediaPlayer.getDuration());
                 LocalBroadcastManager.getInstance(PlayMusicService.this).sendBroadcast(broadcastIntent);
             }
-            if(updateUIProgress == 1){
+            if(updateUIProgress == 1 && mediaPlayer.isPlaying()){
                 int currentPosition = mediaPlayer.getCurrentPosition();
                 Intent broadcastIntent = new Intent(UPDATE_PLAYER_ACTION);
                 broadcastIntent.putExtra("currentPosition",currentPosition);
@@ -231,7 +159,11 @@ public class PlayMusicService extends Service {
 
     @Override
     public void onDestroy() {
+        mediaPlayer.reset();
+        mediaPlayer.release();
+        mediaPlayer = null;
         LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
         super.onDestroy();
     }
+
 }

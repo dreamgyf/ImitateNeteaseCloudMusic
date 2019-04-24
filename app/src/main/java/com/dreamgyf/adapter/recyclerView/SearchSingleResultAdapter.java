@@ -48,8 +48,6 @@ public class SearchSingleResultAdapter extends RecyclerView.Adapter<SearchSingle
         }
     }
 
-    public SearchSingleResultAdapter() {}
-
     @NonNull
     @Override
     public SearchResultViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {

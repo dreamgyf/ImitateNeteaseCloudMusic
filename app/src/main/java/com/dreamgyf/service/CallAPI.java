@@ -47,7 +47,9 @@ public class CallAPI {
             if(httpURLConnection.getResponseCode() != 200)
                 throw new RuntimeException(httpURLConnection.getResponseMessage());
             InputStream in = httpURLConnection.getInputStream();
-            return read(in).toString();
+            String res = read(in).toString();
+            httpURLConnection.disconnect();
+            return res;
         }
 
         public String getSong(int id) throws IOException {
@@ -69,7 +71,9 @@ public class CallAPI {
             if(httpURLConnection.getResponseCode() != 200)
                 throw new RuntimeException(httpURLConnection.getResponseMessage());
             InputStream in = httpURLConnection.getInputStream();
-            return read(in).toString();
+            String res = read(in).toString();
+            httpURLConnection.disconnect();
+            return res;
         }
     }
 }

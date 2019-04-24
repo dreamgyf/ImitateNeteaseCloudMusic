@@ -1,8 +1,5 @@
 package com.dreamgyf.service;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
 import com.dreamgyf.entity.Album;
 import com.dreamgyf.entity.Artist;
 import com.dreamgyf.entity.Song;
@@ -12,7 +9,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -143,7 +139,7 @@ public class ResponseProcessing {
             return songDataList;
         }
 
-        public byte[] songPicByte(int id) throws IOException, JSONException {
+        public InputStream songPicStream(int id) throws IOException, JSONException {
             String stringJson = CallAPI.get().songDetail(id);
             JSONObject jsonObject = new JSONObject(stringJson);
             JSONObject jsonSong = jsonObject.getJSONArray("songs").getJSONObject(0);
@@ -154,11 +150,7 @@ public class ResponseProcessing {
             httpURLConnection.setRequestMethod("GET");
             if(httpURLConnection.getResponseCode() != 200)
                 throw new RuntimeException(httpURLConnection.getResponseMessage());
-            InputStream in = httpURLConnection.getInputStream();
-            Bitmap bitmap = BitmapFactory.decodeStream(in);
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG,100,out);
-            return out.toByteArray();
+            return httpURLConnection.getInputStream();
         }
     }
 }

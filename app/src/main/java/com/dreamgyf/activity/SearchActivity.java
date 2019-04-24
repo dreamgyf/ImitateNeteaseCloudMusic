@@ -20,13 +20,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.dreamgyf.R;
 import com.dreamgyf.adapter.recyclerView.SearchSingleResultAdapter;
 import com.dreamgyf.adapter.viewPager.SearchSingleViewPagerAdapter;
+import com.dreamgyf.bottomSheetDialog.PlayListBottomSheetDialog;
 import com.dreamgyf.broadcastReceiver.PlayerBarBroadcastReceiver;
 import com.dreamgyf.entity.Song;
+import com.dreamgyf.service.PlayMusicPrepareIntentService;
 import com.dreamgyf.service.PlayMusicService;
 
 import java.util.ArrayList;
@@ -67,6 +68,10 @@ public class SearchActivity extends AppCompatActivity {
     private ImageView playerBarPlayButton;
 
     private PlayerBarBroadcastReceiver playerBarBroadcastReceiver;
+
+    private PlayListBottomSheetDialog playListBottomSheetDialog;
+
+    private Intent toPlayerIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,29 +151,13 @@ public class SearchActivity extends AppCompatActivity {
         searchSingleResultAdapter.addOnItemClickListener(new SearchSingleResultAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(RecyclerView recyclerView, View view, int position, Song song) {
-                Toast.makeText(SearchActivity.this,song.getName(),Toast.LENGTH_SHORT).show();
-                //加入播放列表
-                int songPosition = -1;
-                if(PlayMusicService.songList.isEmpty()){
-                    PlayMusicService.songList.add(song);
-                    songPosition = 0;
-                }
-                for(int i = 0;i < PlayMusicService.songList.size();i++){
-                    if(PlayMusicService.songList.get(i).getId() == song.getId()){
-                        songPosition = i;
-                        break;
-                    }
-                    if(i == PlayMusicService.songList.size() - 1){
-                        PlayMusicService.songList.add(song);
-                        songPosition = i + 1;
-                        break;
-                    }
-                }
-                playMusicService.putExtra("songPosition",songPosition);
-                startService(playMusicService);
-                Intent toPlayerIntent = new Intent(SearchActivity.this,PlayerActivity.class);
+                if(toPlayerIntent == null)
+                    toPlayerIntent = new Intent(SearchActivity.this,PlayerActivity.class);
                 startActivity(toPlayerIntent);
                 overridePendingTransition(R.anim.push_up_in,R.anim.no_action);
+                Intent toPrepareIntentService = new Intent(SearchActivity.this, PlayMusicPrepareIntentService.class);
+                toPrepareIntentService.putExtra("song",song);
+                startService(toPrepareIntentService);
             }
         });
         searchSingleViewPageRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -230,4 +219,5 @@ public class SearchActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(playerBarBroadcastReceiver);
         super.onDestroy();
     }
+
 }
