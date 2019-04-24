@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.dreamgyf.R;
+import com.dreamgyf.entity.Song;
 import com.dreamgyf.service.PlayMusicPrepareIntentService;
 
 public class PlayListStaticAdapter {
@@ -17,7 +18,11 @@ public class PlayListStaticAdapter {
     public static PlayListStaticAdapterSingle get(){
         return playListStaticAdapterSingle;
     }
-    public static class PlayListStaticAdapterSingle extends RecyclerView.Adapter<PlayListStaticAdapterSingle.PlayListViewHolder> {
+    public static class PlayListStaticAdapterSingle extends RecyclerView.Adapter<PlayListStaticAdapterSingle.PlayListViewHolder> implements View.OnClickListener {
+
+        private RecyclerView recyclerView;
+
+        private OnItemClickListener onItemClickListener = null;
 
         public class PlayListViewHolder extends RecyclerView.ViewHolder {
 
@@ -37,6 +42,7 @@ public class PlayListStaticAdapter {
         public PlayListViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
             View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.playlist_recyclerview_item,viewGroup,false);
             PlayListViewHolder playListViewHolder = new PlayListViewHolder(view);
+            view.setOnClickListener(this);
             return playListViewHolder;
         }
 
@@ -57,6 +63,34 @@ public class PlayListStaticAdapter {
         @Override
         public int getItemCount() {
             return PlayMusicPrepareIntentService.songList.size();
+        }
+
+        @Override
+        public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+            super.onAttachedToRecyclerView(recyclerView);
+            this.recyclerView = recyclerView;
+        }
+
+        @Override
+        public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+            super.onDetachedFromRecyclerView(recyclerView);
+            this.recyclerView = null;
+        }
+
+        public interface OnItemClickListener{
+            void onItemClick(RecyclerView recyclerView, View view, int position, Song song);
+        }
+
+        public void addOnItemClickListener(OnItemClickListener onItemClickListener){
+            this.onItemClickListener = onItemClickListener;
+        }
+
+        @Override
+        public void onClick(View v) {
+            int position = recyclerView.getChildAdapterPosition(v);
+            if(onItemClickListener != null){
+                onItemClickListener.onItemClick(recyclerView,v,position,PlayMusicPrepareIntentService.songList.get(position));
+            }
         }
     }
 }

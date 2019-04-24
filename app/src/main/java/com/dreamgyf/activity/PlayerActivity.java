@@ -4,9 +4,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,8 +15,10 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.dreamgyf.R;
+import com.dreamgyf.adapter.recyclerView.PlayListAdapter;
 import com.dreamgyf.bottomSheetDialog.PlayListBottomSheetDialog;
 import com.dreamgyf.broadcastReceiver.PlayerBroadcastReceiver;
+import com.dreamgyf.entity.Song;
 import com.dreamgyf.service.PlayMusicPrepareIntentService;
 import com.dreamgyf.service.PlayMusicService;
 
@@ -53,8 +55,6 @@ public class PlayerActivity extends AppCompatActivity {
 
     private PlayListBottomSheetDialog playListBottomSheetDialog;
 
-    private BottomSheetDialog bottomSheetDialog;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,15 +66,26 @@ public class PlayerActivity extends AppCompatActivity {
         setUpdateProgress();
         initSeekBar();
 
-        playListBottomSheetDialog = new PlayListBottomSheetDialog(this);
-
+        PlayListAdapter playListAdapter = new PlayListAdapter();
+        playListAdapter.addOnItemClickListener(new PlayListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(RecyclerView recyclerView, View view, int position, Song song) {
+                Intent toPrepareIntentService = new Intent(PlayerActivity.this, PlayMusicPrepareIntentService.class);
+                toPrepareIntentService.putExtra("song",song);
+                startService(toPrepareIntentService);
+            }
+        });
+        playListBottomSheetDialog = new PlayListBottomSheetDialog(this,playListAdapter);
+        //注册广播接收器
         playerBroadcastReceiver = new PlayerBroadcastReceiver(this);
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(PlayMusicService.UPDATE_PLAYER_ACTION);
+        intentFilter.addAction(PlayMusicService.UPDATE_PLAYER_UI_ACTION);
+        intentFilter.addAction(PlayMusicService.UPDATE_MODE_UI_ACTION);
+        intentFilter.addAction(PlayMusicService.UPDATE_PLAY_BUTTON_ACTION);
+        intentFilter.addAction(PlayMusicService.UPDATE_CURRENT_POSITION_ACTION);
         LocalBroadcastManager.getInstance(this).registerReceiver(playerBroadcastReceiver,intentFilter);
-
-        Intent broadcastIntent = new Intent(PlayMusicService.PLAY_ACTION);
-        broadcastIntent.putExtra("getInfo",1);
+        //初次加载时获取播放信息
+        Intent broadcastIntent = new Intent(PlayMusicService.GET_INFO_ACTION);
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
     }
 
@@ -114,7 +125,6 @@ public class PlayerActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(PlayMusicService.PLAY_ACTION);
-                intent.putExtra("playOrPause",1);
                 LocalBroadcastManager.getInstance(PlayerActivity.this).sendBroadcast(intent);
             }
         });
@@ -149,24 +159,22 @@ public class PlayerActivity extends AppCompatActivity {
         playModeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent setMode = new Intent(PlayMusicService.SET_MODE_ACTION);
                 switch (PlayMusicService.MODE){
                     case "ORDER":
-                        PlayMusicService.MODE = "LIST_LOOP";
-                        playModeButton.setImageDrawable(resources.getDrawable(R.drawable.list_loop_play_mode_icon));
+                        setMode.putExtra("SET_MODE","LIST_LOOP");
                         break;
                     case "LIST_LOOP":
-                        PlayMusicService.MODE = "SINGLE_LOOP";
-                        playModeButton.setImageDrawable(resources.getDrawable(R.drawable.single_loop_play_mode_icon));
+                        setMode.putExtra("SET_MODE","SINGLE_LOOP");
                         break;
                     case "SINGLE_LOOP":
-                        PlayMusicService.MODE = "RANDOM";
-                        playModeButton.setImageDrawable(resources.getDrawable(R.drawable.random_play_mode_icon));
+                        setMode.putExtra("SET_MODE","RANDOM");
                         break;
                     case "RANDOM":
-                        PlayMusicService.MODE = "ORDER";
-                        playModeButton.setImageDrawable(resources.getDrawable(R.drawable.order_play_mode_icon));
+                        setMode.putExtra("SET_MODE","ORDER");
                         break;
                 }
+                LocalBroadcastManager.getInstance(PlayerActivity.this).sendBroadcast(setMode);
             }
         });
         playListButton.setOnClickListener(new View.OnClickListener() {
@@ -182,12 +190,6 @@ public class PlayerActivity extends AppCompatActivity {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                pauseUpdateProgressThread = true;
                 int currentPosition = seekBar.getProgress();
                 String currentPositionSec = String.valueOf(currentPosition / 1000 % 60);
                 String currentPositionMin = String.valueOf(currentPosition / 1000 / 60);
@@ -202,10 +204,15 @@ public class PlayerActivity extends AppCompatActivity {
             }
 
             @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                pauseUpdateProgressThread = true;
+            }
+
+            @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 pauseUpdateProgressThread = false;
-                Intent updateProgressIntent = new Intent(PlayMusicService.PLAY_ACTION);
-                updateProgressIntent.putExtra("updateProgress",seekBar.getProgress());
+                Intent updateProgressIntent = new Intent(PlayMusicService.SET_SEEK_ACTION);
+                updateProgressIntent.putExtra("time",seekBar.getProgress());
                 LocalBroadcastManager.getInstance(PlayerActivity.this).sendBroadcast(updateProgressIntent);
             }
         });
@@ -215,8 +222,7 @@ public class PlayerActivity extends AppCompatActivity {
         updateProgressThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Intent updateUIProgressIntent = new Intent(PlayMusicService.PLAY_ACTION);
-                updateUIProgressIntent.putExtra("updateUIProgress",1);
+                Intent updateUIProgressIntent = new Intent(PlayMusicService.GET_CURRENT_POSITION_ACTION);
                 while (true)
                 {
                     while (pauseUpdateProgressThread)
@@ -244,4 +250,5 @@ public class PlayerActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(playerBroadcastReceiver);
         super.onDestroy();
     }
+
 }

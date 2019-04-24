@@ -88,11 +88,11 @@ public class SearchActivity extends AppCompatActivity {
 
         playerBarBroadcastReceiver = new PlayerBarBroadcastReceiver(this);
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(PlayMusicService.UPDATE_PLAYER_ACTION);
+        intentFilter.addAction(PlayMusicService.UPDATE_PLAYER_UI_ACTION);
+        intentFilter.addAction(PlayMusicService.UPDATE_PLAY_BUTTON_ACTION);
         LocalBroadcastManager.getInstance(this).registerReceiver(playerBarBroadcastReceiver,intentFilter);
-
-        Intent broadcastIntent = new Intent(PlayMusicService.PLAY_ACTION);
-        broadcastIntent.putExtra("getInfo",1);
+        //初次加载时获取播放信息
+        Intent broadcastIntent = new Intent(PlayMusicService.GET_INFO_ACTION);
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
     }
 
@@ -208,7 +208,6 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(PlayMusicService.PLAY_ACTION);
-                intent.putExtra("playOrPause",1);
                 LocalBroadcastManager.getInstance(SearchActivity.this).sendBroadcast(intent);
             }
         });

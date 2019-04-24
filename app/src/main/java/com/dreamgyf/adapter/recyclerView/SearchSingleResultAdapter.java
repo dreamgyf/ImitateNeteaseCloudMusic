@@ -33,7 +33,7 @@ public class SearchSingleResultAdapter extends RecyclerView.Adapter<SearchSingle
 
     private RecyclerView recyclerView;
 
-    private OnItemClickListener onItemClickListener;
+    private OnItemClickListener onItemClickListener = null;
 
     public static class SearchResultViewHolder extends RecyclerView.ViewHolder{
 

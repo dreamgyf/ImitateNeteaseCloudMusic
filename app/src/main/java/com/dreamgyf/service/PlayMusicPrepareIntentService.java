@@ -2,8 +2,8 @@ package com.dreamgyf.service;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 
-import com.dreamgyf.adapter.recyclerView.PlayListStaticAdapter;
 import com.dreamgyf.entity.Song;
 import com.dreamgyf.entity.SongData;
 import com.kingsoft.media.httpcache.KSYProxyService;
@@ -43,6 +43,12 @@ public class PlayMusicPrepareIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        Intent broadcast = new Intent(PlayMusicService.UPDATE_PLAY_LIST_UI_ACTION);
+        if(songPosition >= 0){
+            broadcast.putExtra("previousSongPosition",songPosition);
+        } else {
+            broadcast.putExtra("previousSongPosition",0);
+        }
         Song song = (Song) intent.getSerializableExtra("song");
         //加入播放列表
         if(songList.isEmpty()){
@@ -60,7 +66,8 @@ public class PlayMusicPrepareIntentService extends IntentService {
                 break;
             }
         }
-        PlayListStaticAdapter.get().notifyDataSetChanged();
+        broadcast.putExtra("nextSongPosition",songPosition);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
         String url = null;
         byte[] songPicByte = null;
         try {

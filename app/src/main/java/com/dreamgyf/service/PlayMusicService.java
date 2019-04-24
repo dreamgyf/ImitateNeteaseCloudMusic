@@ -21,7 +21,23 @@ public class PlayMusicService extends Service {
 
     public final static String PLAY_ACTION = "com.dreamgyf.action.PLAY_ACTION";
 
-    public final static String UPDATE_PLAYER_ACTION = "com.dreamgyf.action.UPDATE_PLAYER_ACTION";
+    public final static String SET_MODE_ACTION = "com.dreamgyf.action.SET_MODE_ACTION";
+
+    public final static String GET_INFO_ACTION = "com.dreamgyf.action.GET_INFO_ACTION";
+
+    public final static String GET_CURRENT_POSITION_ACTION = "com.dreamgyf.action.GET_CURRENT_POSITION_ACTION";
+
+    public final static String SET_SEEK_ACTION = "com.dreamgyf.action.SET_SEEK_ACTION";
+
+    public final static String UPDATE_PLAY_BUTTON_ACTION = "com.dreamgyf.action.UPDATE_PLAY_BUTTON_ACTION";
+
+    public final static String UPDATE_MODE_UI_ACTION = "com.dreamgyf.action.UPDATE_MODE_UI_ACTION";
+
+    public final static String UPDATE_PLAYER_UI_ACTION = "com.dreamgyf.action.UPDATE_PLAYER_UI_ACTION";
+
+    public final static String UPDATE_CURRENT_POSITION_ACTION = "com.dreamgyf.action.UPDATE_CURRENT_POSITION_ACTION";
+
+    public final static String UPDATE_PLAY_LIST_UI_ACTION = "com.dreamgyf.action.UPDATE_PLAY_LIST_UI_ACTION";
 
     private String songName;
 
@@ -44,7 +60,7 @@ public class PlayMusicService extends Service {
     }
 
     @Override
-    public int onStartCommand(Intent intent, final int flags, int startId) {
+    public int onStartCommand(final Intent intent, final int flags, int startId) {
         songName = intent.getStringExtra("songName");
         artists = intent.getStringExtra("artists");
         songPicId =intent.getIntExtra("songPicId",-1);
@@ -61,16 +77,21 @@ public class PlayMusicService extends Service {
                             myReceiver = new MyReceiver();
                             IntentFilter intentFilter = new IntentFilter();
                             intentFilter.addAction(PLAY_ACTION);
+                            intentFilter.addAction(SET_MODE_ACTION);
+                            intentFilter.addAction(GET_INFO_ACTION);
+                            intentFilter.addAction(GET_CURRENT_POSITION_ACTION);
+                            intentFilter.addAction(SET_SEEK_ACTION);
                             LocalBroadcastManager.getInstance(PlayMusicService.this).registerReceiver(myReceiver,intentFilter);
                     }
-                    Intent broadcastIntent = new Intent(UPDATE_PLAYER_ACTION);
-                    broadcastIntent.putExtra("status",1);
-                    broadcastIntent.putExtra("change",1);
-                    broadcastIntent.putExtra("title",songName);
-                    broadcastIntent.putExtra("subtitle",artists);
-                    broadcastIntent.putExtra("songPicId",songPicId);
-                    broadcastIntent.putExtra("duration",mp.getDuration());
-                    LocalBroadcastManager.getInstance(PlayMusicService.this).sendBroadcast(broadcastIntent);
+                    Intent sendInfo = new Intent(UPDATE_PLAYER_UI_ACTION);
+                    sendInfo.putExtra("title",songName);
+                    sendInfo.putExtra("subtitle",artists);
+                    sendInfo.putExtra("songPicId",songPicId);
+                    sendInfo.putExtra("duration",mediaPlayer.getDuration());
+                    LocalBroadcastManager.getInstance(PlayMusicService.this).sendBroadcast(sendInfo);
+                    Intent updatePlayButton = new Intent(UPDATE_PLAY_BUTTON_ACTION);
+                    updatePlayButton.putExtra("PLAY_STATUS",1);
+                    LocalBroadcastManager.getInstance(PlayMusicService.this).sendBroadcast(updatePlayButton);
                 }
             });
             mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -82,6 +103,11 @@ public class PlayMusicService extends Service {
                                 Intent playNext = new Intent(PlayMusicService.this,PlayMusicPrepareIntentService.class);
                                 playNext.putExtra("song",PlayMusicPrepareIntentService.songList.get(PlayMusicPrepareIntentService.songPosition + 1));
                                 startService(playNext);
+                            }
+                            else {
+                                Intent updatePlayButton = new Intent(UPDATE_PLAY_BUTTON_ACTION);
+                                updatePlayButton.putExtra("PLAY_STATUS",0);
+                                LocalBroadcastManager.getInstance(PlayMusicService.this).sendBroadcast(updatePlayButton);
                             }
                             break;
                         case "LIST_LOOP":
@@ -114,45 +140,49 @@ public class PlayMusicService extends Service {
     public class MyReceiver extends BroadcastReceiver{
         @Override
         public void onReceive(Context context, Intent intent) {
-            int playOrPause = intent.getIntExtra("playOrPause",-1);
-            int getInfo = intent.getIntExtra("getInfo",-1);
-            int updateUIProgress = intent.getIntExtra("updateUIProgress",-1);
-            int updateProgress = intent.getIntExtra("updateProgress",-1);
-            if(playOrPause == 1){
-                Intent broadcastIntent = new Intent(UPDATE_PLAYER_ACTION);
+            String action = intent.getAction();
+            //设置播放或暂停
+            if(action.equals(PLAY_ACTION)){
+                Intent playStatus = new Intent(UPDATE_PLAY_BUTTON_ACTION);
                 if(mediaPlayer.isPlaying()){
                     mediaPlayer.pause();
-                    broadcastIntent.putExtra("status",0);
+                    playStatus.putExtra("PLAY_STATUS",0);
                 }
                 else {
                     mediaPlayer.start();
-                    broadcastIntent.putExtra("status",1);
+                    playStatus.putExtra("PLAY_STATUS",1);
                 }
-                LocalBroadcastManager.getInstance(PlayMusicService.this).sendBroadcast(broadcastIntent);
+                LocalBroadcastManager.getInstance(PlayMusicService.this).sendBroadcast(playStatus);
             }
-            if(getInfo == 1){
-                Intent broadcastIntent = new Intent(UPDATE_PLAYER_ACTION);
-                if(mediaPlayer.isPlaying()){
-                    broadcastIntent.putExtra("status",1);
-                }
-                else {
-                    broadcastIntent.putExtra("status",0);
-                }
-                broadcastIntent.putExtra("change",1);
-                broadcastIntent.putExtra("title",songName);
-                broadcastIntent.putExtra("subtitle",artists);
-                broadcastIntent.putExtra("songPicId",songPicId);
-                broadcastIntent.putExtra("duration",mediaPlayer.getDuration());
-                LocalBroadcastManager.getInstance(PlayMusicService.this).sendBroadcast(broadcastIntent);
+            //设置播放模式
+            if(action.equals(SET_MODE_ACTION)){
+                MODE = intent.getStringExtra("SET_MODE");
+                Intent updateModeUI = new Intent(UPDATE_MODE_UI_ACTION);
+                updateModeUI.putExtra("UPDATE_MODE",MODE);
+                LocalBroadcastManager.getInstance(PlayMusicService.this).sendBroadcast(updateModeUI);
             }
-            if(updateUIProgress == 1 && mediaPlayer.isPlaying()){
-                int currentPosition = mediaPlayer.getCurrentPosition();
-                Intent broadcastIntent = new Intent(UPDATE_PLAYER_ACTION);
-                broadcastIntent.putExtra("currentPosition",currentPosition);
-                LocalBroadcastManager.getInstance(PlayMusicService.this).sendBroadcast(broadcastIntent);
+            //发送音乐信息
+            if(action.equals(GET_INFO_ACTION)){
+                Intent sendInfo = new Intent(UPDATE_PLAYER_UI_ACTION);
+                sendInfo.putExtra("title",songName);
+                sendInfo.putExtra("subtitle",artists);
+                sendInfo.putExtra("songPicId",songPicId);
+                sendInfo.putExtra("duration",mediaPlayer.getDuration());
+                LocalBroadcastManager.getInstance(PlayMusicService.this).sendBroadcast(sendInfo);
+                Intent updatePlayButton = new Intent(UPDATE_PLAY_BUTTON_ACTION);
+                updatePlayButton.putExtra("PLAY_STATUS",1);
+                LocalBroadcastManager.getInstance(PlayMusicService.this).sendBroadcast(updatePlayButton);
             }
-            if(updateProgress != -1){
-                mediaPlayer.seekTo(updateProgress);
+            //更新进度条
+            if(action.equals(GET_CURRENT_POSITION_ACTION)){
+                Intent updateCurrentPosition = new Intent(UPDATE_CURRENT_POSITION_ACTION);
+                updateCurrentPosition.putExtra("currentPosition",mediaPlayer.getCurrentPosition());
+                LocalBroadcastManager.getInstance(PlayMusicService.this).sendBroadcast(updateCurrentPosition);
+            }
+            //歌曲时间定位
+            if(action.equals(SET_SEEK_ACTION)){
+                int time = intent.getIntExtra("time",-1);
+                mediaPlayer.seekTo(time);
             }
         }
     }

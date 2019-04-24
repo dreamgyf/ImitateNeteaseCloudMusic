@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.dreamgyf.R;
 import com.dreamgyf.activity.MainActivity;
+import com.dreamgyf.service.PlayMusicService;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -42,17 +43,21 @@ public class PlayerBarBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        int status = intent.getIntExtra("status",-1);
-        int change = intent.getIntExtra("change",-1);
-        switch(status){
-            case 0:
-                playerBarPlayButton.setImageDrawable(resources.getDrawable(R.drawable.playbar_play_icon));
-                break;
-            case 1:
-                playerBarPlayButton.setImageDrawable(resources.getDrawable(R.drawable.playbar_pause_icon));
-                break;
+        String action = intent.getAction();
+        //更新播放状态UI
+        if(action.equals(PlayMusicService.UPDATE_PLAY_BUTTON_ACTION)){
+            int status = intent.getIntExtra("PLAY_STATUS",-1);
+            switch(status){
+                case 0:
+                    playerBarPlayButton.setImageDrawable(resources.getDrawable(R.drawable.playbar_play_icon));
+                    break;
+                case 1:
+                    playerBarPlayButton.setImageDrawable(resources.getDrawable(R.drawable.playbar_pause_icon));
+                    break;
+            }
         }
-        if(change == 1){
+        //更新音乐信息UI
+        if(action.equals(PlayMusicService.UPDATE_PLAYER_UI_ACTION)){
             String title = intent.getStringExtra("title");
             String subtitle = intent.getStringExtra("subtitle");
             int songPicId = intent.getIntExtra("songPicId",-1);
@@ -68,7 +73,6 @@ public class PlayerBarBroadcastReceiver extends BroadcastReceiver {
             playerBarSubtitleTextView.setText(subtitle);
             if(bitmap != null)
                 playerBarImageView.setImageBitmap(bitmap);
-
         }
     }
 }

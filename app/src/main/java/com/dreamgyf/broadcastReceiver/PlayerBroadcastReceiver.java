@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.dreamgyf.R;
 import com.dreamgyf.activity.MainActivity;
+import com.dreamgyf.service.PlayMusicService;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -28,6 +29,8 @@ public class PlayerBroadcastReceiver extends BroadcastReceiver {
 
     private ImageView playButton;
 
+    private ImageView playModeButton;
+
     private TextView currentTime;
 
     private TextView duration;
@@ -40,6 +43,7 @@ public class PlayerBroadcastReceiver extends BroadcastReceiver {
         resources = activity.getResources();
         toolbar = activity.findViewById(R.id.toolbar);
         playButton = activity.findViewById(R.id.play_image_view);
+        playModeButton = activity.findViewById(R.id.play_mode_image_view);
         currentTime = activity.findViewById(R.id.current_time);
         duration = activity.findViewById(R.id.duration);
         seekBar = activity.findViewById(R.id.seek_bar);
@@ -47,18 +51,39 @@ public class PlayerBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        int status = intent.getIntExtra("status",-1);
-        int change = intent.getIntExtra("change",-1);
-        int currentPosition = intent.getIntExtra("currentPosition",-1);
-        switch(status){
-            case 0:
-                playButton.setImageDrawable(resources.getDrawable(R.drawable.play_icon));
-                break;
-            case 1:
-                playButton.setImageDrawable(resources.getDrawable(R.drawable.pause_icon));
-                break;
+        String action = intent.getAction();
+        //更新播放状态UI
+        if(action.equals(PlayMusicService.UPDATE_PLAY_BUTTON_ACTION)){
+            int status = intent.getIntExtra("PLAY_STATUS",-1);
+            switch(status){
+                case 0:
+                    playButton.setImageDrawable(resources.getDrawable(R.drawable.play_icon));
+                    break;
+                case 1:
+                    playButton.setImageDrawable(resources.getDrawable(R.drawable.pause_icon));
+                    break;
+            }
         }
-        if(change == 1){
+        //更新模式UI
+        if(action.equals(PlayMusicService.UPDATE_MODE_UI_ACTION)){
+            String updateMode = intent.getStringExtra("UPDATE_MODE");
+            switch (updateMode){
+                case "ORDER":
+                    playModeButton.setImageDrawable(resources.getDrawable(R.drawable.order_play_mode_icon));
+                    break;
+                case "LIST_LOOP":
+                    playModeButton.setImageDrawable(resources.getDrawable(R.drawable.list_loop_play_mode_icon));
+                    break;
+                case "SINGLE_LOOP":
+                    playModeButton.setImageDrawable(resources.getDrawable(R.drawable.single_loop_play_mode_icon));
+                    break;
+                case "RANDOM":
+                    playModeButton.setImageDrawable(resources.getDrawable(R.drawable.random_play_mode_icon));
+                    break;
+            }
+        }
+        //更新音乐信息UI
+        if(action.equals(PlayMusicService.UPDATE_PLAYER_UI_ACTION)){
             String title = intent.getStringExtra("title");
             String subtitle = intent.getStringExtra("subtitle");
             int songPicId = intent.getIntExtra("songPicId",-1);
@@ -82,15 +107,19 @@ public class PlayerBroadcastReceiver extends BroadcastReceiver {
             duration.setText(durationMin + ":" + durationSec);
             seekBar.setMax(durationMs);
         }
-        if(currentPosition != -1){
-            seekBar.setProgress(currentPosition);
-            String currentPositionSec = String.valueOf(currentPosition / 1000 % 60);
-            String currentPositionMin = String.valueOf(currentPosition / 1000 / 60);
-            if(currentPositionSec.length() < 2)
-                currentPositionSec = "0" + currentPositionSec;
-            if(currentPositionMin.length() < 2)
-                currentPositionMin = "0" + currentPositionMin;
-            currentTime.setText(currentPositionMin + ":" + currentPositionSec);
+        //更新当前播放时间
+        if(action.equals(PlayMusicService.UPDATE_CURRENT_POSITION_ACTION)){
+            int currentPosition = intent.getIntExtra("currentPosition",-1);
+            if(currentPosition != -1){
+                seekBar.setProgress(currentPosition);
+                String currentPositionSec = String.valueOf(currentPosition / 1000 % 60);
+                String currentPositionMin = String.valueOf(currentPosition / 1000 / 60);
+                if(currentPositionSec.length() < 2)
+                    currentPositionSec = "0" + currentPositionSec;
+                if(currentPositionMin.length() < 2)
+                    currentPositionMin = "0" + currentPositionMin;
+                currentTime.setText(currentPositionMin + ":" + currentPositionSec);
+            }
         }
     }
 }
