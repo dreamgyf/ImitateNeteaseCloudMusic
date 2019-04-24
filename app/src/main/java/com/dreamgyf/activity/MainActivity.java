@@ -23,8 +23,12 @@ import android.widget.TextView;
 
 import com.dreamgyf.R;
 import com.dreamgyf.adapter.recyclerView.MusicListViewPagerTopAdapter;
+import com.dreamgyf.adapter.recyclerView.PlayListAdapter;
 import com.dreamgyf.adapter.viewPager.MainViewPagerAdapter;
+import com.dreamgyf.bottomSheetDialog.PlayListBottomSheetDialog;
 import com.dreamgyf.broadcastReceiver.PlayerBarBroadcastReceiver;
+import com.dreamgyf.entity.Song;
+import com.dreamgyf.service.PlayMusicPrepareIntentService;
 import com.dreamgyf.service.PlayMusicService;
 import com.dreamgyf.view.RoundImageView;
 
@@ -71,7 +75,11 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageView playerBarPlayButton;
 
+    private ImageView playerBarPlayListButton;
+
     private PlayerBarBroadcastReceiver playerBarBroadcastReceiver;
+
+    private PlayListBottomSheetDialog playListBottomSheetDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +94,21 @@ public class MainActivity extends AppCompatActivity {
         initTabLayout();
         initPlayerBar();
         initSongList();
+
+        //加载播放列表
+        PlayListAdapter playListAdapter = new PlayListAdapter();
+        playListAdapter.addOnItemClickListener(new PlayListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(RecyclerView recyclerView, View view, int position, Song song) {
+                Intent toPlayerActivity = new Intent(MainActivity.this,PlayerActivity.class);
+                startActivity(toPlayerActivity);
+                overridePendingTransition(R.anim.push_up_in,R.anim.no_action);
+                Intent toPrepareIntentService = new Intent(MainActivity.this, PlayMusicPrepareIntentService.class);
+                toPrepareIntentService.putExtra("song",song);
+                startService(toPrepareIntentService);
+            }
+        });
+        playListBottomSheetDialog = new PlayListBottomSheetDialog(this,playListAdapter);
 
         playerBarBroadcastReceiver = new PlayerBarBroadcastReceiver(this);
         IntentFilter intentFilter = new IntentFilter();
@@ -228,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
         playerBarTitleTextView = findViewById(R.id.player_bar_title_text_view);
         playerBarSubtitleTextView = findViewById(R.id.player_bar_subtitle_text_view);
         playerBarPlayButton = findViewById(R.id.player_bar_play_button);
-
+        playerBarPlayListButton = findViewById(R.id.playlist_button);
         playerBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -247,8 +270,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(PlayMusicService.PLAY_ACTION);
-                intent.putExtra("playOrPause",1);
                 LocalBroadcastManager.getInstance(MainActivity.this).sendBroadcast(intent);
+            }
+        });
+        playerBarPlayListButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playListBottomSheetDialog.show();
             }
         });
     }

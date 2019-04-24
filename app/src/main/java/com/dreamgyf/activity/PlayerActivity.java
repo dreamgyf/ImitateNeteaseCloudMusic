@@ -66,6 +66,7 @@ public class PlayerActivity extends AppCompatActivity {
         setUpdateProgress();
         initSeekBar();
 
+        //加载播放列表
         PlayListAdapter playListAdapter = new PlayListAdapter();
         playListAdapter.addOnItemClickListener(new PlayListAdapter.OnItemClickListener() {
             @Override

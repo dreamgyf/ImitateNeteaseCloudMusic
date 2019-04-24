@@ -45,7 +45,18 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/playlist_button"
+        android:layout_marginEnd="20dp"/>
+
+    <ImageView
+        android:id="@+id/playlist_button"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="10dp"/>
+        android:layout_marginEnd="10dp"
+        android:src="@drawable/playerbar_playlist_icon"/>
     
 </android.support.constraint.ConstraintLayout>
