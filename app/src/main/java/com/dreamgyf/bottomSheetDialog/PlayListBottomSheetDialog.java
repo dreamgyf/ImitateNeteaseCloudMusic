@@ -35,7 +35,7 @@ public class PlayListBottomSheetDialog extends BottomSheetDialog {
     public PlayListBottomSheetDialog(@NonNull final Context context, PlayListAdapter playListAdapter) {
         super(context);
         this.context = context;
-        view = LayoutInflater.from(context).inflate(R.layout.bottomsheetdialog_music_list,null,false);
+        view = LayoutInflater.from(context).inflate(R.layout.bottomsheetdialog_playlist,null,false);
         modeImage = view.findViewById(R.id.mode_image);
         modeText = view.findViewById(R.id.mode_text);
         recyclerView = view.findViewById(R.id.recycler_view);

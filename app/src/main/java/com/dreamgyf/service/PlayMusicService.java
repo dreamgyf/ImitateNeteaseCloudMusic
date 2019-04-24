@@ -1,5 +1,7 @@
 package com.dreamgyf.service;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,6 +10,8 @@ import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
+
+import com.dreamgyf.activity.MainActivity;
 
 import java.io.IOException;
 
@@ -61,6 +65,13 @@ public class PlayMusicService extends Service {
 
     @Override
     public int onStartCommand(final Intent intent, final int flags, int startId) {
+
+        Notification.Builder builder = new Notification.Builder(this);
+        Intent nIntent = new Intent(this, MainActivity.class);
+        builder.setContentIntent(PendingIntent.getActivity(this,0,nIntent,0));
+        Notification notification = builder.build();
+        startForeground(1,notification);
+
         songName = intent.getStringExtra("songName");
         artists = intent.getStringExtra("artists");
         songPicId =intent.getIntExtra("songPicId",-1);
@@ -192,6 +203,7 @@ public class PlayMusicService extends Service {
         mediaPlayer.reset();
         mediaPlayer.release();
         mediaPlayer = null;
+        stopForeground(true);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
         super.onDestroy();
     }
