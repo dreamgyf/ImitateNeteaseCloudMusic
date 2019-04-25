@@ -16,12 +16,18 @@ import android.widget.TextView;
 
 import com.dreamgyf.R;
 import com.dreamgyf.adapter.recyclerView.PlayListAdapter;
+import com.dreamgyf.adapter.viewPager.PlayerViewPagerAdapter;
+import com.dreamgyf.anim.FadeOutPageTransformer;
+import com.dreamgyf.anim.ViewPagerScroller;
 import com.dreamgyf.bottomSheetDialog.PlayListBottomSheetDialog;
 import com.dreamgyf.broadcastReceiver.PlayerBroadcastReceiver;
 import com.dreamgyf.entity.Song;
 import com.dreamgyf.service.PlayMusicPrepareIntentService;
 import com.dreamgyf.service.PlayMusicService;
+import com.dreamgyf.view.NoSlidingViewPager;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -32,6 +38,10 @@ public class PlayerActivity extends AppCompatActivity {
     private Resources resources;
 
     private Toolbar toolbar;
+
+    private NoSlidingViewPager viewPager;
+
+    private List<View> viewList = new ArrayList<>();
 
     private ImageView playMusicButton;
 
@@ -62,6 +72,7 @@ public class PlayerActivity extends AppCompatActivity {
         resources = getResources();
 
         initToolbar();
+        initViewPager();
         initButton();
         setUpdateProgress();
         initSeekBar();
@@ -99,6 +110,29 @@ public class PlayerActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
+            }
+        });
+    }
+
+    private void initViewPager(){
+        viewPager = findViewById(R.id.view_pager);
+        viewList.add(getLayoutInflater().inflate(R.layout.viewpager_disc,null));
+        viewList.add(getLayoutInflater().inflate(R.layout.viewpager_lyric,null));
+        viewPager.setAdapter(new PlayerViewPagerAdapter(viewList));
+        ViewPagerScroller viewPagerScroller = new ViewPagerScroller(this);
+        viewPagerScroller.setDuration(500);
+        viewPagerScroller.setViewPager(viewPager);
+        viewPager.setPageTransformer(true,new FadeOutPageTransformer());
+        viewList.get(0).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                viewPager.setCurrentItem(1);
+            }
+        });
+        viewList.get(1).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                viewPager.setCurrentItem(0);
             }
         });
     }
