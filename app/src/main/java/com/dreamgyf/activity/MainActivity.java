@@ -289,5 +289,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(playerBarBroadcastReceiver);
         super.onDestroy();
+        System.exit(0);
     }
 }
