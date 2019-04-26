@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -14,7 +15,9 @@ import android.widget.TextView;
 
 import com.dreamgyf.R;
 import com.dreamgyf.activity.MainActivity;
+import com.dreamgyf.activity.PlayerActivity;
 import com.dreamgyf.service.PlayMusicService;
+import com.dreamgyf.view.NoSlidingViewPager;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -37,6 +40,10 @@ public class PlayerBroadcastReceiver extends BroadcastReceiver {
 
     private SeekBar seekBar;
 
+    private NoSlidingViewPager viewPager;
+
+    private ViewPager discViewPager;
+
     public PlayerBroadcastReceiver(Activity activity) {
         super();
         this.activity = activity;
@@ -47,6 +54,8 @@ public class PlayerBroadcastReceiver extends BroadcastReceiver {
         currentTime = activity.findViewById(R.id.current_time);
         duration = activity.findViewById(R.id.duration);
         seekBar = activity.findViewById(R.id.seek_bar);
+        viewPager = activity.findViewById(R.id.view_pager);
+        discViewPager = PlayerActivity.viewList.get(0).findViewById(R.id.view_pager);
     }
 
     @Override
@@ -106,6 +115,9 @@ public class PlayerBroadcastReceiver extends BroadcastReceiver {
                 durationMin = "0" + durationMin;
             duration.setText(durationMin + ":" + durationSec);
             seekBar.setMax(durationMs);
+            int songPosition = intent.getIntExtra("songPosition",-1);
+            if(songPosition != -1)
+                discViewPager.setCurrentItem(songPosition);
         }
         //更新当前播放时间
         if(action.equals(PlayMusicService.UPDATE_CURRENT_POSITION_ACTION)){

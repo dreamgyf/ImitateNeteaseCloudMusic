@@ -5,17 +5,20 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.dreamgyf.R;
 import com.dreamgyf.adapter.recyclerView.PlayListAdapter;
+import com.dreamgyf.adapter.viewPager.DiscViewPagerAdapter;
 import com.dreamgyf.adapter.viewPager.PlayerViewPagerAdapter;
 import com.dreamgyf.anim.FadeOutPageTransformer;
 import com.dreamgyf.anim.ViewPagerScroller;
@@ -41,7 +44,7 @@ public class PlayerActivity extends AppCompatActivity {
 
     private NoSlidingViewPager viewPager;
 
-    private List<View> viewList = new ArrayList<>();
+    public static List<View> viewList = new ArrayList<>();
 
     private ImageView playMusicButton;
 
@@ -120,21 +123,55 @@ public class PlayerActivity extends AppCompatActivity {
         viewList.add(getLayoutInflater().inflate(R.layout.viewpager_lyric,null));
         viewPager.setAdapter(new PlayerViewPagerAdapter(viewList));
         ViewPagerScroller viewPagerScroller = new ViewPagerScroller(this);
-        viewPagerScroller.setDuration(500);
+        viewPagerScroller.setDuration(500);     //设置切换动画时间
         viewPagerScroller.setViewPager(viewPager);
-        viewPager.setPageTransformer(true,new FadeOutPageTransformer());
-        viewList.get(0).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                viewPager.setCurrentItem(1);
-            }
-        });
+        viewPager.setPageTransformer(true,new FadeOutPageTransformer());    //设置切换动画
+        initDiscViewPager();
         viewList.get(1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 viewPager.setCurrentItem(0);
             }
         });
+    }
+
+    void initDiscViewPager(){
+        viewList.get(0).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                viewPager.setCurrentItem(1);
+            }
+        });
+        ImageView discBackground = viewList.get(0).findViewById(R.id.disc_background);
+        discBackground.getLayoutParams().width = (int)(resources.getDisplayMetrics().widthPixels * 1.04);
+        discBackground.getLayoutParams().height = discBackground.getLayoutParams().width;
+        ImageView needle = viewList.get(0).findViewById(R.id.needle);
+        ViewGroup.LayoutParams needleLayout = needle.getLayoutParams();
+        needleLayout.width = resources.getDisplayMetrics().widthPixels / 5;
+        needleLayout.height = resources.getDisplayMetrics().heightPixels;
+        needle.setLayoutParams(needleLayout);
+
+        ViewPager discViewPager = viewList.get(0).findViewById(R.id.view_pager);
+        discViewPager.setAdapter(new DiscViewPagerAdapter(this,viewPager));
+        discViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i1) {
+
+            }
+
+            @Override
+            public void onPageSelected(int i) {
+                Intent intent = new Intent(PlayerActivity.this,PlayMusicPrepareIntentService.class);
+                intent.putExtra("song",PlayMusicPrepareIntentService.songList.get(i));
+                startService(intent);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int i) {
+
+            }
+        });
+
     }
 
     @Override

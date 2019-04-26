@@ -26,6 +26,4 @@ public class NoSlidingViewPager extends ViewPager {
     public boolean onTouchEvent(MotionEvent ev) {
         return false;
     }
-
-
 }

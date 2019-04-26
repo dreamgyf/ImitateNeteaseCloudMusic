@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static String PATH;
 
+    public static int LOGIN_STATUS = 0;     //0未知，-1未登录，1已登录
+
     private List<View> viewList = new ArrayList<>();
 
     private Toolbar toolbar;
@@ -93,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
         initViewPager();
         initTabLayout();
         initPlayerBar();
-        initSongList();
 
         //加载播放列表
         PlayListAdapter playListAdapter = new PlayListAdapter();
@@ -109,15 +110,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         playListBottomSheetDialog = new PlayListBottomSheetDialog(this,playListAdapter);
+        //初始化广播接收器，向service发一条广播来获得歌曲信息
+        initBroadcastReceiver();
 
-        playerBarBroadcastReceiver = new PlayerBarBroadcastReceiver(this);
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(PlayMusicService.UPDATE_PLAYER_UI_ACTION);
-        intentFilter.addAction(PlayMusicService.UPDATE_PLAY_BUTTON_ACTION);
-        LocalBroadcastManager.getInstance(this).registerReceiver(playerBarBroadcastReceiver,intentFilter);
-        //初次加载时获取播放信息
-        Intent broadcastIntent = new Intent(PlayMusicService.GET_INFO_ACTION);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
 
     }
 
@@ -151,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
     private void initViewPager()
     {
         viewPager = findViewById(R.id.main_viewPager);
-        viewList.add(getLayoutInflater().inflate(R.layout.viewpager_music_list,null));
+        viewList.add(getLayoutInflater().inflate(R.layout.viewpager_index,null));
         viewList.add(getLayoutInflater().inflate(R.layout.viewpager_music_recommend,null));
         viewPager.setAdapter(new MainViewPagerAdapter(viewList));
         //初始化音乐列表页面
@@ -281,8 +276,16 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void initSongList(){
-
+    private void initBroadcastReceiver(){
+        //注册广播接收器
+        playerBarBroadcastReceiver = new PlayerBarBroadcastReceiver(this);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(PlayMusicService.UPDATE_PLAYER_UI_ACTION);
+        intentFilter.addAction(PlayMusicService.UPDATE_PLAY_BUTTON_ACTION);
+        LocalBroadcastManager.getInstance(this).registerReceiver(playerBarBroadcastReceiver,intentFilter);
+        //初次加载时获取播放信息
+        Intent broadcastIntent = new Intent(PlayMusicService.GET_INFO_ACTION);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
     }
 
     @Override

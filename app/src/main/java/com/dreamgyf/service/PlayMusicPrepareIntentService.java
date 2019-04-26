@@ -25,6 +25,8 @@ public class PlayMusicPrepareIntentService extends IntentService {
 
     public static volatile List<Song> songList = new ArrayList<>();
 
+    public static volatile List<Boolean> songPicReady = new ArrayList<>();
+
     public static volatile int songPosition;
 
     private String path;    //apk包路径
@@ -53,6 +55,7 @@ public class PlayMusicPrepareIntentService extends IntentService {
         //加入播放列表
         if(songList.isEmpty()){
             songList.add(song);
+            songPicReady.add(false);
             songPosition = 0;
         }
         for(int i = 0;i < songList.size();i++){
@@ -62,6 +65,7 @@ public class PlayMusicPrepareIntentService extends IntentService {
             }
             if(i == songList.size() - 1){
                 songList.add(song);
+                songPicReady.add(false);
                 songPosition = i + 1;
                 break;
             }
@@ -73,15 +77,16 @@ public class PlayMusicPrepareIntentService extends IntentService {
         try {
             final String filePath = path + "/songs/" + song.getId() + ".mp3";
             String picPath = path + "/pic/" + song.getAlbum().getId() + ".jpg";
-            InputStream picStream = ResponseProcessing.get().songPicStream(songList.get(songPosition).getId());
             File picFile = new File(picPath);
             if(!picFile.exists()) {
                 if (!picFile.getParentFile().exists()) {
                     if (!picFile.getParentFile().mkdirs())
                         throw new RuntimeException("create file error");
                 }
+                InputStream picStream = ResponseProcessing.get().songPicStream(songList.get(songPosition).getId());
                 writeFile(picStream,picFile);
             }
+            songPicReady.set(songPosition,true);
             File file = new File(filePath);
             if(!file.exists()){
                 if(!file.getParentFile().exists()){
@@ -118,6 +123,7 @@ public class PlayMusicPrepareIntentService extends IntentService {
         toPlayMusicService.putExtra("artists",artists);
         toPlayMusicService.putExtra("songPicId",song.getAlbum().getId());
         toPlayMusicService.putExtra("dataSource",url);
+        toPlayMusicService.putExtra("songPosition",songPosition);
         startService(toPlayMusicService);
     }
 

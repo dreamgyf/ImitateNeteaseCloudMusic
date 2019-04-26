@@ -43,11 +43,15 @@ public class PlayMusicService extends Service {
 
     public final static String UPDATE_PLAY_LIST_UI_ACTION = "com.dreamgyf.action.UPDATE_PLAY_LIST_UI_ACTION";
 
+    public final static String SONG_PIC_READY_ACTION = "com.dreamgyf.action.SONG_PIC_READY_ACTION";
+
     private String songName;
 
     private String artists;
 
     private int songPicId;
+
+    private int songPosition;
 
     public PlayMusicService() {
     }
@@ -74,7 +78,8 @@ public class PlayMusicService extends Service {
 
         songName = intent.getStringExtra("songName");
         artists = intent.getStringExtra("artists");
-        songPicId =intent.getIntExtra("songPicId",-1);
+        songPicId = intent.getIntExtra("songPicId",-1);
+        songPosition = intent.getIntExtra("songPosition",-1);
         String dataSource = intent.getStringExtra("dataSource");
         try {
             mediaPlayer.reset();
@@ -99,6 +104,7 @@ public class PlayMusicService extends Service {
                     sendInfo.putExtra("subtitle",artists);
                     sendInfo.putExtra("songPicId",songPicId);
                     sendInfo.putExtra("duration",mediaPlayer.getDuration());
+                    sendInfo.putExtra("songPosition",songPosition);
                     LocalBroadcastManager.getInstance(PlayMusicService.this).sendBroadcast(sendInfo);
                     Intent updatePlayButton = new Intent(UPDATE_PLAY_BUTTON_ACTION);
                     updatePlayButton.putExtra("PLAY_STATUS",1);
@@ -179,6 +185,7 @@ public class PlayMusicService extends Service {
                 sendInfo.putExtra("subtitle",artists);
                 sendInfo.putExtra("songPicId",songPicId);
                 sendInfo.putExtra("duration",mediaPlayer.getDuration());
+                sendInfo.putExtra("songPosition",songPosition);
                 LocalBroadcastManager.getInstance(PlayMusicService.this).sendBroadcast(sendInfo);
                 Intent updatePlayButton = new Intent(UPDATE_PLAY_BUTTON_ACTION);
                 updatePlayButton.putExtra("PLAY_STATUS",1);

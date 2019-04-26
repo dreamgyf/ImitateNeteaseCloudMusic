@@ -39,7 +39,7 @@ public class MusicListViewPagerTopAdapter extends RecyclerView.Adapter<MusicList
     @NonNull
     @Override
     public MusicListViewPagerTopViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.music_list_viewpager_top_recyclerview_item,viewGroup,false);
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.index_viewpager_top_recyclerview_item,viewGroup,false);
         MusicListViewPagerTopViewHolder viewHolder = new MusicListViewPagerTopViewHolder(view);
         return viewHolder;
     }
