@@ -1,5 +1,8 @@
 package com.dreamgyf.service;
 
+import com.alibaba.fastjson.JSON;
+import com.dreamgyf.entity.UserDetail;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,6 +77,29 @@ public class CallAPI {
             String res = read(in).toString();
             httpURLConnection.disconnect();
             return res;
+        }
+
+        public String signIn(String phone,String password) throws IOException {
+            URL url = new URL(DOMAIN + "/login/cellphone?phone=" + phone + "&password=" + password);
+            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+            if(httpURLConnection.getResponseCode() != 200)
+                return String.valueOf(httpURLConnection.getResponseCode());
+            InputStream in = httpURLConnection.getInputStream();
+            String res = read(in).toString();
+            httpURLConnection.disconnect();
+            return res;
+        }
+
+        public UserDetail getUserDetail(String uid) throws IOException {
+            URL url = new URL(DOMAIN + "/user/detail?uid=" + uid);
+            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setRequestMethod("GET");
+            if(httpURLConnection.getResponseCode() != 200)
+                throw new RuntimeException(httpURLConnection.getResponseMessage());
+            InputStream in = httpURLConnection.getInputStream();
+            String res = read(in).toString();
+            httpURLConnection.disconnect();
+            return JSON.parseObject(res, UserDetail.class);
         }
     }
 }

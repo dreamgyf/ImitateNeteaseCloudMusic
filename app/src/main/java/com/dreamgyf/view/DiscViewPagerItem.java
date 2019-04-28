@@ -1,8 +1,6 @@
 package com.dreamgyf.view;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
@@ -16,7 +14,6 @@ import android.widget.ImageView;
 import com.dreamgyf.R;
 import com.dreamgyf.activity.MainActivity;
 import com.dreamgyf.service.PlayMusicPrepareIntentService;
-import com.dreamgyf.service.PlayMusicService;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,15 +45,15 @@ public class DiscViewPagerItem extends ConstraintLayout {
         set.clone(this);
         set.centerHorizontally(discImage.getId(),ConstraintSet.PARENT_ID);
         set.centerVertically(discImage.getId(),ConstraintSet.PARENT_ID);
-        set.constrainWidth(discImage.getId(),MainActivity.resources.getDisplayMetrics().widthPixels / 4 * 3);
-        set.constrainHeight(discImage.getId(),MainActivity.resources.getDisplayMetrics().widthPixels / 4 * 3);
+        set.constrainWidth(discImage.getId(),MainActivity.RESOURCES.getDisplayMetrics().widthPixels / 4 * 3);
+        set.constrainHeight(discImage.getId(),MainActivity.RESOURCES.getDisplayMetrics().widthPixels / 4 * 3);
         set.centerHorizontally(songPic.getId(),ConstraintSet.PARENT_ID);
         set.centerVertically(songPic.getId(),ConstraintSet.PARENT_ID);
-        set.constrainWidth(songPic.getId(),MainActivity.resources.getDisplayMetrics().widthPixels / 2);
-        set.constrainHeight(songPic.getId(),MainActivity.resources.getDisplayMetrics().widthPixels / 2);
+        set.constrainWidth(songPic.getId(),MainActivity.RESOURCES.getDisplayMetrics().widthPixels / 2);
+        set.constrainHeight(songPic.getId(),MainActivity.RESOURCES.getDisplayMetrics().widthPixels / 2);
         set.applyTo(this);
         //设置图片
-        discImage.setImageDrawable(MainActivity.resources.getDrawable(R.drawable.disc));
+        discImage.setImageDrawable(MainActivity.RESOURCES.getDrawable(R.drawable.disc));
         setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

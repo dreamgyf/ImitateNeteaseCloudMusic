@@ -69,8 +69,8 @@ public class PlayListBottomSheetDialog extends BottomSheetDialog {
                         TextView previousTitle = previousView.findViewById(R.id.title);
                         TextView previousSubtitle = previousView.findViewById(R.id.subtitle);
                         previousImageView.setVisibility(View.GONE);
-                        previousTitle.setTextColor(MainActivity.resources.getColor(R.color.colorFontBlack));
-                        previousSubtitle.setTextColor(MainActivity.resources.getColor(R.color.infoFont));
+                        previousTitle.setTextColor(MainActivity.RESOURCES.getColor(R.color.colorFontBlack));
+                        previousSubtitle.setTextColor(MainActivity.RESOURCES.getColor(R.color.infoFont));
                     }
                     if(nextSongPosition < recyclerView.getChildCount()){
                         View nextView = recyclerView.getChildAt(nextSongPosition);
@@ -78,8 +78,8 @@ public class PlayListBottomSheetDialog extends BottomSheetDialog {
                         TextView nextTitle = nextView.findViewById(R.id.title);
                         TextView nextSubtitle = nextView.findViewById(R.id.subtitle);
                         nextImageView.setVisibility(View.VISIBLE);
-                        nextTitle.setTextColor(MainActivity.resources.getColor(R.color.colorNeteaseRed));
-                        nextSubtitle.setTextColor(MainActivity.resources.getColor(R.color.colorNeteaseRed));
+                        nextTitle.setTextColor(MainActivity.RESOURCES.getColor(R.color.colorNeteaseRed));
+                        nextSubtitle.setTextColor(MainActivity.RESOURCES.getColor(R.color.colorNeteaseRed));
                     }
                 }
             }

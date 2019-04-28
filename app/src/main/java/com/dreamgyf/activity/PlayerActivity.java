@@ -75,33 +75,13 @@ public class PlayerActivity extends AppCompatActivity {
         resources = getResources();
 
         initToolbar();
+        initPlayList();
         initViewPager();
         initButton();
         setUpdateProgress();
         initSeekBar();
-
-        //加载播放列表
-        PlayListAdapter playListAdapter = new PlayListAdapter();
-        playListAdapter.addOnItemClickListener(new PlayListAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(RecyclerView recyclerView, View view, int position, Song song) {
-                Intent toPrepareIntentService = new Intent(PlayerActivity.this, PlayMusicPrepareIntentService.class);
-                toPrepareIntentService.putExtra("song",song);
-                startService(toPrepareIntentService);
-            }
-        });
-        playListBottomSheetDialog = new PlayListBottomSheetDialog(this,playListAdapter);
-        //注册广播接收器
-        playerBroadcastReceiver = new PlayerBroadcastReceiver(this);
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(PlayMusicService.UPDATE_PLAYER_UI_ACTION);
-        intentFilter.addAction(PlayMusicService.UPDATE_MODE_UI_ACTION);
-        intentFilter.addAction(PlayMusicService.UPDATE_PLAY_BUTTON_ACTION);
-        intentFilter.addAction(PlayMusicService.UPDATE_CURRENT_POSITION_ACTION);
-        LocalBroadcastManager.getInstance(this).registerReceiver(playerBroadcastReceiver,intentFilter);
-        //初次加载时获取播放信息
-        Intent broadcastIntent = new Intent(PlayMusicService.GET_INFO_ACTION);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
+        //初始化广播接收器，向service发一条广播来获得歌曲信息
+        initBroadcastReceiver();
     }
 
     private void initToolbar()
@@ -115,6 +95,20 @@ public class PlayerActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    private void initPlayList(){
+        //加载播放列表
+        PlayListAdapter playListAdapter = new PlayListAdapter();
+        playListAdapter.addOnItemClickListener(new PlayListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(RecyclerView recyclerView, View view, int position, Song song) {
+                Intent toPrepareIntentService = new Intent(PlayerActivity.this, PlayMusicPrepareIntentService.class);
+                toPrepareIntentService.putExtra("song",song);
+                startService(toPrepareIntentService);
+            }
+        });
+        playListBottomSheetDialog = new PlayListBottomSheetDialog(this,playListAdapter);
     }
 
     private void initViewPager(){
@@ -315,6 +309,20 @@ public class PlayerActivity extends AppCompatActivity {
             }
         });
         executorService.execute(updateProgressThread);
+    }
+
+    private void initBroadcastReceiver(){
+        //注册广播接收器
+        playerBroadcastReceiver = new PlayerBroadcastReceiver(this);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(PlayMusicService.UPDATE_PLAYER_UI_ACTION);
+        intentFilter.addAction(PlayMusicService.UPDATE_MODE_UI_ACTION);
+        intentFilter.addAction(PlayMusicService.UPDATE_PLAY_BUTTON_ACTION);
+        intentFilter.addAction(PlayMusicService.UPDATE_CURRENT_POSITION_ACTION);
+        LocalBroadcastManager.getInstance(this).registerReceiver(playerBroadcastReceiver,intentFilter);
+        //初次加载时获取播放信息
+        Intent broadcastIntent = new Intent(PlayMusicService.GET_INFO_ACTION);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
     }
 
     @Override

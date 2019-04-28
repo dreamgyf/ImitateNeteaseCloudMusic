@@ -3,6 +3,7 @@ package com.dreamgyf.activity;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -15,23 +16,29 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dreamgyf.R;
-import com.dreamgyf.adapter.recyclerView.MusicListViewPagerTopAdapter;
+import com.dreamgyf.adapter.recyclerView.IndexViewPagerTopAdapter;
 import com.dreamgyf.adapter.recyclerView.PlayListAdapter;
 import com.dreamgyf.adapter.viewPager.MainViewPagerAdapter;
 import com.dreamgyf.bottomSheetDialog.PlayListBottomSheetDialog;
 import com.dreamgyf.broadcastReceiver.PlayerBarBroadcastReceiver;
 import com.dreamgyf.entity.Song;
+import com.dreamgyf.entity.UserDetail;
+import com.dreamgyf.service.CallAPI;
 import com.dreamgyf.service.PlayMusicPrepareIntentService;
 import com.dreamgyf.service.PlayMusicService;
+import com.dreamgyf.util.ImageUtil;
 import com.dreamgyf.view.RoundImageView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,11 +46,13 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static Resources resources;
+    public static Resources RESOURCES;
 
     public static String PATH;
 
     public static int LOGIN_STATUS = 0;     //0未知，-1未登录，1已登录
+
+    public static String accountId = "-1";
 
     private List<View> viewList = new ArrayList<>();
 
@@ -63,9 +72,9 @@ public class MainActivity extends AppCompatActivity {
 
     private RoundImageView headerAvatar;
 
-    private RoundImageView musicListAvatar;
+    private RoundImageView indexAvatar;
 
-    private RecyclerView musicListViewPagerTopRecyclerView;
+    private RecyclerView indexViewPagerTopRecyclerView;
 
     private View playerBar;
 
@@ -87,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        resources = getResources();
+        RESOURCES = getResources();
         PATH = getExternalFilesDir("").getAbsolutePath();
 
         initToolbar();
@@ -95,21 +104,8 @@ public class MainActivity extends AppCompatActivity {
         initViewPager();
         initTabLayout();
         initPlayerBar();
-
-        //加载播放列表
-        PlayListAdapter playListAdapter = new PlayListAdapter();
-        playListAdapter.addOnItemClickListener(new PlayListAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(RecyclerView recyclerView, View view, int position, Song song) {
-                Intent toPlayerActivity = new Intent(MainActivity.this,PlayerActivity.class);
-                startActivity(toPlayerActivity);
-                overridePendingTransition(R.anim.push_up_in,R.anim.no_action);
-                Intent toPrepareIntentService = new Intent(MainActivity.this, PlayMusicPrepareIntentService.class);
-                toPrepareIntentService.putExtra("song",song);
-                startService(toPrepareIntentService);
-            }
-        });
-        playListBottomSheetDialog = new PlayListBottomSheetDialog(this,playListAdapter);
+        if(!accountId.equals("-1"))
+            updateUserInfo();
         //初始化广播接收器，向service发一条广播来获得歌曲信息
         initBroadcastReceiver();
 
@@ -150,27 +146,33 @@ public class MainActivity extends AppCompatActivity {
         viewList.add(getLayoutInflater().inflate(R.layout.viewpager_music_recommend,null));
         viewPager.setAdapter(new MainViewPagerAdapter(viewList));
         //初始化音乐列表页面
-        initMusicListViewPager();
+        initIndexViewPager();
     }
 
-    private void initMusicListViewPager()
+    private void initIndexViewPager()
     {
         //初始化头像
-        musicListAvatar = viewList.get(0).findViewById(R.id.avatar);
-        //设置默认头像
-        musicListAvatar.setImageDrawable(resources.getDrawable(R.drawable.default_avatar));
+        indexAvatar = viewList.get(0).findViewById(R.id.avatar);
+        indexAvatar.setImageDrawable(RESOURCES.getDrawable(R.drawable.default_avatar));
+        indexAvatar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this,LoginActivity.class);
+                startActivity(intent);
+            }
+        });
         //加载上部的RecyclerView
         List<Map<String,Object>> data = initMusicListViewPagerTopRecyclerViewData();
-        musicListViewPagerTopRecyclerView = viewList.get(0).findViewById(R.id.top_recycler_view);
+        indexViewPagerTopRecyclerView = viewList.get(0).findViewById(R.id.top_recycler_view);
         RecyclerView.LayoutManager musicListViewPagerTopRecyclerViewLayoutManager = new LinearLayoutManager(this) {
             @Override
             public boolean canScrollVertically() {
                 return false;
             }
         };
-        musicListViewPagerTopRecyclerView.setLayoutManager(musicListViewPagerTopRecyclerViewLayoutManager);
-        musicListViewPagerTopRecyclerView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL));
-        musicListViewPagerTopRecyclerView.setAdapter(new MusicListViewPagerTopAdapter(data));
+        indexViewPagerTopRecyclerView.setLayoutManager(musicListViewPagerTopRecyclerViewLayoutManager);
+        indexViewPagerTopRecyclerView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL));
+        indexViewPagerTopRecyclerView.setAdapter(new IndexViewPagerTopAdapter(data));
     }
 
     private List<Map<String,Object>> initMusicListViewPagerTopRecyclerViewData()
@@ -178,19 +180,19 @@ public class MainActivity extends AppCompatActivity {
         List<Map<String,Object>> data = new ArrayList<>();
         Map<String,Object> map = new HashMap<>();
         map.put("text","本地音乐");
-        map.put("firstImage",resources.getDrawable(R.drawable.local_music_icon));
+        map.put("firstImage", RESOURCES.getDrawable(R.drawable.local_music_icon));
         data.add(map);
         map = new HashMap<>();
         map.put("text","最近播放");
-        map.put("firstImage",resources.getDrawable(R.drawable.recent_play_icon));
+        map.put("firstImage", RESOURCES.getDrawable(R.drawable.recent_play_icon));
         data.add(map);
         map = new HashMap<>();
         map.put("text","下载管理");
-        map.put("firstImage",resources.getDrawable(R.drawable.download_manage_icon));
+        map.put("firstImage", RESOURCES.getDrawable(R.drawable.download_manage_icon));
         data.add(map);
         map = new HashMap<>();
         map.put("text","我的收藏");
-        map.put("firstImage",resources.getDrawable(R.drawable.my_collect_icon));
+        map.put("firstImage", RESOURCES.getDrawable(R.drawable.my_collect_icon));
         data.add(map);
         return data;
     }
@@ -233,14 +235,15 @@ public class MainActivity extends AppCompatActivity {
         //初始化header
         headerView = navigationView.getHeaderView(0);
         //初始化header背景
-        headerView.setBackground(resources.getDrawable(R.drawable.test));
+        headerView.setBackground(RESOURCES.getDrawable(R.drawable.test));
         //初始化header里的头像
         headerAvatar = headerView.findViewById(R.id.main_drawer_avatar);
-        headerAvatar.setImageDrawable(resources.getDrawable(R.drawable.avatar));
+        headerAvatar.setImageDrawable(RESOURCES.getDrawable(R.drawable.avatar));
 
     }
 
     private void initPlayerBar(){
+        initPlayList();
         playerBar = findViewById(R.id.player_bar);
         playerBarImageView = findViewById(R.id.player_bar_image_view);
         playerBarTitleTextView = findViewById(R.id.player_bar_title_text_view);
@@ -256,10 +259,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        playerBarImageView.setImageDrawable(resources.getDrawable(R.drawable.default_album_pic));
+        playerBarImageView.setImageDrawable(RESOURCES.getDrawable(R.drawable.default_album_pic));
         playerBarTitleTextView.setText("未知");
         playerBarSubtitleTextView.setText("未知");
-        playerBarPlayButton.setImageDrawable(resources.getDrawable(R.drawable.playbar_play_icon));
+        playerBarPlayButton.setImageDrawable(RESOURCES.getDrawable(R.drawable.playbar_play_icon));
 
         playerBarPlayButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -276,6 +279,23 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void initPlayList(){
+        //加载播放列表
+        PlayListAdapter playListAdapter = new PlayListAdapter();
+        playListAdapter.addOnItemClickListener(new PlayListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(RecyclerView recyclerView, View view, int position, Song song) {
+                Intent toPlayerActivity = new Intent(MainActivity.this,PlayerActivity.class);
+                startActivity(toPlayerActivity);
+                overridePendingTransition(R.anim.push_up_in,R.anim.no_action);
+                Intent toPrepareIntentService = new Intent(MainActivity.this, PlayMusicPrepareIntentService.class);
+                toPrepareIntentService.putExtra("song",song);
+                startService(toPrepareIntentService);
+            }
+        });
+        playListBottomSheetDialog = new PlayListBottomSheetDialog(this,playListAdapter);
+    }
+
     private void initBroadcastReceiver(){
         //注册广播接收器
         playerBarBroadcastReceiver = new PlayerBarBroadcastReceiver(this);
@@ -288,10 +308,51 @@ public class MainActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
     }
 
+    private void updateUserInfo(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final UserDetail userDetail = CallAPI.get().getUserDetail(accountId);
+                    final Bitmap avatarBitmap = ImageUtil.createBitmapFromUrl(userDetail.getProfile().getAvatarUrl());
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            indexAvatar.setImageBitmap(avatarBitmap);
+                            headerAvatar.setImageBitmap(avatarBitmap);
+                            TextView nickname = viewList.get(0).findViewById(R.id.nickname);
+                            nickname.setText(userDetail.getProfile().getNickname());
+                        }
+                    });
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Toast.makeText(this,"test",Toast.LENGTH_LONG).show();
+        updateUserInfo();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK){
+            moveTaskToBack(false);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
     @Override
     protected void onDestroy() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(playerBarBroadcastReceiver);
         super.onDestroy();
         System.exit(0);
     }
+
 }

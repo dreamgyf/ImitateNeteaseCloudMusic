@@ -14,7 +14,7 @@ import com.dreamgyf.R;
 import java.util.List;
 import java.util.Map;
 
-public class MusicListViewPagerTopAdapter extends RecyclerView.Adapter<MusicListViewPagerTopAdapter.MusicListViewPagerTopViewHolder> {
+public class IndexViewPagerTopAdapter extends RecyclerView.Adapter<IndexViewPagerTopAdapter.MusicListViewPagerTopViewHolder> {
 
     private List<Map<String,Object>> data;
 
@@ -32,7 +32,7 @@ public class MusicListViewPagerTopAdapter extends RecyclerView.Adapter<MusicList
         }
     }
 
-    public MusicListViewPagerTopAdapter(List<Map<String,Object>> data) {
+    public IndexViewPagerTopAdapter(List<Map<String,Object>> data) {
         this.data = data;
     }
 

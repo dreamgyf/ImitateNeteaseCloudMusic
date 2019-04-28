@@ -53,13 +53,10 @@ public class PlayMusicPrepareIntentService extends IntentService {
         }
         Song song = (Song) intent.getSerializableExtra("song");
         //加入播放列表
-        if(songList.isEmpty()){
-            songList.add(song);
-            songPicReady.add(false);
-            songPosition = 0;
-        }
         for(int i = 0;i < songList.size();i++){
             if(songList.get(i).getId() == song.getId()){
+                if(songPosition == i)
+                    return;
                 songPosition = i;
                 break;
             }
@@ -69,6 +66,11 @@ public class PlayMusicPrepareIntentService extends IntentService {
                 songPosition = i + 1;
                 break;
             }
+        }
+        if(songList.isEmpty()){
+            songList.add(song);
+            songPicReady.add(false);
+            songPosition = 0;
         }
         broadcast.putExtra("nextSongPosition",songPosition);
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);

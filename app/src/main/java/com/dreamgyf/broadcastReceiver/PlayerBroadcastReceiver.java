@@ -7,7 +7,14 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
+import android.os.Handler;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -17,6 +24,7 @@ import com.dreamgyf.R;
 import com.dreamgyf.activity.MainActivity;
 import com.dreamgyf.activity.PlayerActivity;
 import com.dreamgyf.service.PlayMusicService;
+import com.dreamgyf.util.ImageUtil;
 import com.dreamgyf.view.NoSlidingViewPager;
 
 import java.io.FileInputStream;
@@ -95,14 +103,6 @@ public class PlayerBroadcastReceiver extends BroadcastReceiver {
         if(action.equals(PlayMusicService.UPDATE_PLAYER_UI_ACTION)){
             String title = intent.getStringExtra("title");
             String subtitle = intent.getStringExtra("subtitle");
-            int songPicId = intent.getIntExtra("songPicId",-1);
-            if(songPicId != -1){
-                try {
-                    Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(MainActivity.PATH + "/pic/" + songPicId + ".jpg"));
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
             int durationMs = intent.getIntExtra("duration",-1);
             intent.getIntExtra("duration",-1);
             toolbar.setTitle(title);
@@ -118,6 +118,54 @@ public class PlayerBroadcastReceiver extends BroadcastReceiver {
             int songPosition = intent.getIntExtra("songPosition",-1);
             if(songPosition != -1)
                 discViewPager.setCurrentItem(songPosition);
+            final int songPicId = intent.getIntExtra("songPicId",-1);
+            if(songPicId != -1){
+                final Handler handler = new Handler();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            float aspectRatio = (float) MainActivity.RESOURCES.getDisplayMetrics().widthPixels / MainActivity.RESOURCES.getDisplayMetrics().heightPixels;
+                            Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(MainActivity.PATH + "/pic/" + songPicId + ".jpg"));
+                            int cropBitmapWidth;
+                            int cropBitmapHeight;
+                            if(bitmap.getWidth() >= bitmap.getHeight()){
+                                cropBitmapWidth = (int) (bitmap.getWidth() * aspectRatio);
+                                cropBitmapHeight = bitmap.getHeight();
+                            } else {
+                                cropBitmapWidth = bitmap.getWidth();
+                                cropBitmapHeight = (int) (bitmap.getHeight() * aspectRatio);
+                            }
+                            Bitmap cropBitmap = Bitmap.createBitmap(bitmap,
+                                    bitmap.getWidth() >= bitmap.getHeight()
+                                            ? (bitmap.getWidth() - cropBitmapWidth) / 2
+                                            : 0,
+                                    bitmap.getWidth() >= bitmap.getHeight()
+                                            ? 0
+                                            : (bitmap.getHeight() - cropBitmapHeight) / 2,
+                                    cropBitmapWidth,cropBitmapHeight);
+                            Bitmap zoomOutBitmap = Bitmap.createScaledBitmap(cropBitmap,cropBitmapWidth / 50,cropBitmapHeight / 50,false);
+                            Bitmap blurBitmap = ImageUtil.doBlur(zoomOutBitmap,8,true);
+                            final Drawable background = new BitmapDrawable(MainActivity.RESOURCES,blurBitmap);
+                            background.setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    DrawerLayout root = activity.findViewById(R.id.root);
+                                    TransitionDrawable transitionDrawable = new TransitionDrawable(new Drawable[]{root.getBackground(),background});
+                                    root.setBackground(transitionDrawable);
+                                    transitionDrawable.startTransition(300);
+                                }
+                            });
+
+
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+            }
         }
         //更新当前播放时间
         if(action.equals(PlayMusicService.UPDATE_CURRENT_POSITION_ACTION)){

@@ -152,5 +152,15 @@ public class ResponseProcessing {
                 throw new RuntimeException(httpURLConnection.getResponseMessage());
             return httpURLConnection.getInputStream();
         }
+
+        public String signIn(String phone,String password) throws IOException, JSONException {
+            String stringJson = CallAPI.get().signIn(phone,password);
+            if(stringJson == null || stringJson.equals("") || (stringJson.charAt(0) != '{' && stringJson.charAt(0) != '['))
+            {
+                return stringJson;
+            }
+            JSONObject jsonObject = new JSONObject(stringJson);
+            return String.valueOf(jsonObject.getJSONObject("account").getInt("id"));
+        }
     }
 }

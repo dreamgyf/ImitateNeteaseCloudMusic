@@ -59,8 +59,8 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.PlayLi
         playListViewHolder.subtitle.setText(" - " + artists);
         if(PlayMusicPrepareIntentService.songPosition == i){
             playListViewHolder.trumpet.setVisibility(View.VISIBLE);
-            playListViewHolder.title.setTextColor(MainActivity.resources.getColor(R.color.colorNeteaseRed));
-            playListViewHolder.subtitle.setTextColor(MainActivity.resources.getColor(R.color.colorNeteaseRed));
+            playListViewHolder.title.setTextColor(MainActivity.RESOURCES.getColor(R.color.colorNeteaseRed));
+            playListViewHolder.subtitle.setTextColor(MainActivity.RESOURCES.getColor(R.color.colorNeteaseRed));
         }
     }
 

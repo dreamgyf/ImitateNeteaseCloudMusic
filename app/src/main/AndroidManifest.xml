@@ -3,12 +3,12 @@
     package="com.dreamgyf">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -17,10 +17,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.PlayerActivity"
-            android:launchMode="singleTop"></activity>
+        <service
+            android:name=".service.LoginService"
+            android:exported="false"></service>
 
-        <service android:name=".service.PlayMusicPrepareIntentService"/>
+        <activity android:name=".activity.LoginActivity" />
+        <activity
+            android:name=".activity.PlayerActivity"
+            android:launchMode="singleTop" />
+
+        <service android:name=".service.PlayMusicPrepareIntentService" />
         <service
             android:name=".service.PlayMusicService"
             android:enabled="true"
@@ -28,6 +34,7 @@
 
         <activity
             android:name=".activity.MainActivity"
+            android:launchMode="singleTask"
             android:theme="@style/AppTheme.MAIN">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,7 +45,7 @@
         <activity
             android:name=".activity.SearchActivity"
             android:parentActivityName=".activity.MainActivity"
-            android:theme="@style/AppTheme.SEARCH"/>
+            android:theme="@style/AppTheme.SEARCH" />
     </application>
 
 </manifest>
