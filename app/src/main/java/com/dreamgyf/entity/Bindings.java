@@ -1,5 +1,6 @@
 package com.dreamgyf.entity;
 
+//绑定账号
 public class Bindings {
 
     private long refreshTime;

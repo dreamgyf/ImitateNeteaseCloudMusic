@@ -8,4 +8,6 @@
     <color name="searchViewHintFont">#e77973</color>
     <color name="searchViewFont">#f5c6c3</color>
     <color name="infoFont">#808080</color>
+    <color name="indexControlBarBackground">#f3f3f3</color>
+    <color name="indexControlBarText">#616161</color>
 </resources>

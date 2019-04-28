@@ -2,6 +2,7 @@ package com.dreamgyf.entity;
 
 import java.util.List;
 
+//用户信息
 public class Profile {
 
     private String detailDescription;

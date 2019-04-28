@@ -2,6 +2,7 @@ package com.dreamgyf.entity;
 
 import java.io.Serializable;
 
+//专辑
 public class Album implements Serializable {
 
     private int id;

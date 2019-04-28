@@ -27,10 +27,12 @@ import android.widget.Toast;
 import com.dreamgyf.R;
 import com.dreamgyf.adapter.recyclerView.IndexViewPagerTopAdapter;
 import com.dreamgyf.adapter.recyclerView.PlayListAdapter;
+import com.dreamgyf.adapter.recyclerView.SongListAdapter;
 import com.dreamgyf.adapter.viewPager.MainViewPagerAdapter;
 import com.dreamgyf.bottomSheetDialog.PlayListBottomSheetDialog;
 import com.dreamgyf.broadcastReceiver.PlayerBarBroadcastReceiver;
 import com.dreamgyf.entity.Song;
+import com.dreamgyf.entity.SongList;
 import com.dreamgyf.entity.UserDetail;
 import com.dreamgyf.service.CallAPI;
 import com.dreamgyf.service.PlayMusicPrepareIntentService;
@@ -43,12 +45,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
     public static Resources RESOURCES;
 
     public static String PATH;
+
+    public static ExecutorService executorService = Executors.newFixedThreadPool(10);
 
     public static int LOGIN_STATUS = 0;     //0未知，-1未登录，1已登录
 
@@ -92,6 +98,10 @@ public class MainActivity extends AppCompatActivity {
 
     private PlayListBottomSheetDialog playListBottomSheetDialog;
 
+    private SongListAdapter createdSongListAdapter;
+
+    private SongListAdapter collectSongListAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
         initDrawerToggle();
         initViewPager();
         initTabLayout();
+        initSongList();
         initPlayerBar();
         if(!accountId.equals("-1"))
             updateUserInfo();
@@ -162,20 +173,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         //加载上部的RecyclerView
-        List<Map<String,Object>> data = initMusicListViewPagerTopRecyclerViewData();
+        List<Map<String,Object>> data = initIndexViewPagerTopRecyclerViewData();
         indexViewPagerTopRecyclerView = viewList.get(0).findViewById(R.id.top_recycler_view);
-        RecyclerView.LayoutManager musicListViewPagerTopRecyclerViewLayoutManager = new LinearLayoutManager(this) {
-            @Override
-            public boolean canScrollVertically() {
-                return false;
-            }
-        };
-        indexViewPagerTopRecyclerView.setLayoutManager(musicListViewPagerTopRecyclerViewLayoutManager);
+        indexViewPagerTopRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         indexViewPagerTopRecyclerView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL));
         indexViewPagerTopRecyclerView.setAdapter(new IndexViewPagerTopAdapter(data));
     }
 
-    private List<Map<String,Object>> initMusicListViewPagerTopRecyclerViewData()
+    private List<Map<String,Object>> initIndexViewPagerTopRecyclerViewData()
     {
         List<Map<String,Object>> data = new ArrayList<>();
         Map<String,Object> map = new HashMap<>();
@@ -222,6 +227,19 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void initSongList(){
+        RecyclerView createdSongLists = viewList.get(0).findViewById(R.id.created_songlist);
+        createdSongLists.setLayoutManager(new LinearLayoutManager(this));
+        createdSongLists.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL));
+        createdSongListAdapter = new SongListAdapter();
+        createdSongLists.setAdapter(createdSongListAdapter);
+        RecyclerView collectSongLists = viewList.get(0).findViewById(R.id.collect_songlist);
+        collectSongLists.setLayoutManager(new LinearLayoutManager(this));
+        collectSongLists.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL));
+        collectSongListAdapter = new SongListAdapter();
+        collectSongLists.setAdapter(collectSongListAdapter);
     }
 
     private void initDrawerToggle()
@@ -324,6 +342,27 @@ public class MainActivity extends AppCompatActivity {
                             nickname.setText(userDetail.getProfile().getNickname());
                         }
                     });
+                    List<SongList> songLists = CallAPI.get().getSongList(accountId);
+                    final List<SongList> createdSongLists = new ArrayList<>();
+                    final List<SongList> collectSongLists = new ArrayList<>();
+                    for(SongList songList : songLists){
+                        if(songList.getCreator().getUserId() == Long.parseLong(accountId))
+                            createdSongLists.add(songList);
+                        else
+                            collectSongLists.add(songList);
+                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            createdSongListAdapter.clear();
+                            createdSongListAdapter.add(createdSongLists);
+                            createdSongListAdapter.notifyDataSetChanged();
+                            collectSongListAdapter.clear();
+                            collectSongListAdapter.add(collectSongLists);
+                            collectSongListAdapter.notifyDataSetChanged();
+                        }
+                    });
+
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -335,7 +374,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        Toast.makeText(this,"test",Toast.LENGTH_LONG).show();
+        Toast.makeText(this,"正在登录",Toast.LENGTH_LONG).show();
         updateUserInfo();
     }
 
