@@ -38,6 +38,20 @@ public class PlayListBottomSheetDialog extends BottomSheetDialog {
         view = LayoutInflater.from(context).inflate(R.layout.bottomsheetdialog_playlist,null,false);
         modeImage = view.findViewById(R.id.mode_image);
         modeText = view.findViewById(R.id.mode_text);
+        switch (PlayMusicService.MODE){
+            case "ORDER":
+                modeText.setText("顺序播放");
+                break;
+            case "LIST_LOOP":
+                modeText.setText("列表循环");
+                break;
+            case "SINGLE_LOOP":
+                modeText.setText("单曲循环");
+                break;
+            case "RANDOM":
+                modeText.setText("随机播放");
+                break;
+        }
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.getLayoutParams().height = context.getResources().getDisplayMetrics().heightPixels / 2;
         recyclerView.setLayoutManager(new LinearLayoutManager(context));

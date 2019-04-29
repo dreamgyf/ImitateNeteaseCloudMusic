@@ -19,11 +19,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.SongListViewHolder> {
+public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.SongListViewHolder> implements View.OnClickListener {
 
     private List<SongList> songLists = new ArrayList<>();
 
     private Handler handler = new Handler();
+
+    private RecyclerView recyclerView;
+
+    private OnItemClickListener onItemClickListener = null;
 
     public static class SongListViewHolder extends RecyclerView.ViewHolder {
 
@@ -46,6 +50,7 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.SongLi
     public SongListViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.songlist_recyclerview_item,viewGroup,false);
         SongListViewHolder viewHolder = new SongListViewHolder(view);
+        view.setOnClickListener(this);
         return viewHolder;
     }
 
@@ -75,6 +80,34 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.SongLi
     @Override
     public int getItemCount() {
         return songLists.size();
+    }
+
+    public interface OnItemClickListener{
+        void onClick(RecyclerView recyclerView,View view,int position,SongList songList);
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        this.recyclerView = recyclerView;
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        this.recyclerView = null;
+    }
+
+    public void addOnItemClickListener(OnItemClickListener onItemClickListener){
+        this.onItemClickListener = onItemClickListener;
+    }
+
+    @Override
+    public void onClick(View v) {
+        int position = recyclerView.getChildAdapterPosition(v);
+        if(onItemClickListener != null){
+            onItemClickListener.onClick(recyclerView,v,position,songLists.get(position));
+        }
     }
 
     public void add(SongList songList){

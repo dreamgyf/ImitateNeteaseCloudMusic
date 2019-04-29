@@ -1,9 +1,10 @@
 package com.dreamgyf.entity;
 
+import java.io.Serializable;
 import java.util.List;
 
 //用户信息
-public class Profile {
+public class Profile implements Serializable {
 
     private String detailDescription;
     private boolean followed;

@@ -1,7 +1,9 @@
 package com.dreamgyf.entity;
 
+import java.io.Serializable;
+
 //绑定账号
-public class Bindings {
+public class Bindings implements Serializable {
 
     private long refreshTime;
     private long expiresIn;

@@ -1,8 +1,9 @@
 package com.dreamgyf.entity;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class SongList {
+public class SongList implements Serializable {
 
     private List<String> subscribers;
     private boolean subscribed;

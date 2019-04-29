@@ -13,8 +13,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Handler;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -152,7 +152,7 @@ public class PlayerBroadcastReceiver extends BroadcastReceiver {
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    DrawerLayout root = activity.findViewById(R.id.root);
+                                    ConstraintLayout root = activity.findViewById(R.id.root);
                                     TransitionDrawable transitionDrawable = new TransitionDrawable(new Drawable[]{root.getBackground(),background});
                                     root.setBackground(transitionDrawable);
                                     transitionDrawable.startTransition(300);

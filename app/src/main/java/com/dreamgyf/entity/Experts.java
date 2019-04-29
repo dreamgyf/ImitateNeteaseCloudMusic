@@ -1,4 +1,6 @@
 package com.dreamgyf.entity;
 
-public class Experts {
+import java.io.Serializable;
+
+public class Experts implements Serializable {
 }

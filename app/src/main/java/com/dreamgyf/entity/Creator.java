@@ -1,7 +1,9 @@
 package com.dreamgyf.entity;
 
+import java.io.Serializable;
+
 //歌单创建者
-public class Creator {
+public class Creator implements Serializable {
 
     private boolean defaultAvatar;
     private long province;

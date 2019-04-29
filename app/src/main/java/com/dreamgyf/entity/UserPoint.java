@@ -1,6 +1,8 @@
 package com.dreamgyf.entity;
 
-public class UserPoint {
+import java.io.Serializable;
+
+public class UserPoint implements Serializable {
 
     private long userId;
     private int balance;

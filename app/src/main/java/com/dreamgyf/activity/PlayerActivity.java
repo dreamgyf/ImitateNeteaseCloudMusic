@@ -222,6 +222,20 @@ public class PlayerActivity extends AppCompatActivity {
                 }
             }
         });
+        switch (PlayMusicService.MODE){
+            case "ORDER":
+                playModeButton.setImageDrawable(resources.getDrawable(R.drawable.order_play_mode_icon));
+                break;
+            case "LIST_LOOP":
+                playModeButton.setImageDrawable(resources.getDrawable(R.drawable.list_loop_play_mode_icon));
+                break;
+            case "SINGLE_LOOP":
+                playModeButton.setImageDrawable(resources.getDrawable(R.drawable.single_loop_play_mode_icon));
+                break;
+            case "RANDOM":
+                playModeButton.setImageDrawable(resources.getDrawable(R.drawable.random_play_mode_icon));
+                break;
+        }
         playModeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

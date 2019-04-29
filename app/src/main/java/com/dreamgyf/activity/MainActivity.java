@@ -235,6 +235,14 @@ public class MainActivity extends AppCompatActivity {
         createdSongLists.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL));
         createdSongListAdapter = new SongListAdapter();
         createdSongLists.setAdapter(createdSongListAdapter);
+        createdSongListAdapter.addOnItemClickListener(new SongListAdapter.OnItemClickListener() {
+            @Override
+            public void onClick(RecyclerView recyclerView, View view, int position, SongList songList) {
+                Intent intent = new Intent(MainActivity.this,SongListActivity.class);
+                intent.putExtra("songList",songList);
+                startActivity(intent);
+            }
+        });
         RecyclerView collectSongLists = viewList.get(0).findViewById(R.id.collect_songlist);
         collectSongLists.setLayoutManager(new LinearLayoutManager(this));
         collectSongLists.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL));
