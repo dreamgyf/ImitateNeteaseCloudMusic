@@ -67,12 +67,12 @@ public class DiscViewPagerItem extends ConstraintLayout {
             }
         });
         final Handler handler = new Handler();
-        new Thread(new Runnable() {
+        MainActivity.executorService.execute(new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    int songPicId = PlayMusicPrepareIntentService.songList.get(position).getAlbum().getId();
-                    File file = new File(MainActivity.PATH + "/pic/" + songPicId + ".jpg");
+                    long songPicId = PlayMusicPrepareIntentService.songList.get(position).getAl().getPic();
+                    File file = new File(MainActivity.PATH + "/album_pic/" + songPicId + ".jpg");
                     while(position >= PlayMusicPrepareIntentService.songPicReady.size() || PlayMusicPrepareIntentService.songPicReady.get(position).equals(false));
                     final Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
                     handler.post(new Runnable() {
@@ -85,6 +85,6 @@ public class DiscViewPagerItem extends ConstraintLayout {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        }));
     }
 }

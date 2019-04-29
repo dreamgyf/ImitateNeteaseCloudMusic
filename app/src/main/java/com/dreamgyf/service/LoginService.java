@@ -7,8 +7,6 @@ import android.widget.Toast;
 
 import com.dreamgyf.activity.MainActivity;
 
-import org.json.JSONException;
-
 import java.io.IOException;
 
 public class LoginService extends IntentService {
@@ -28,7 +26,7 @@ public class LoginService extends IntentService {
         String phone = intent.getStringExtra("phone");
         String password = intent.getStringExtra("password");
         try {
-            final String accountId = ResponseProcessing.get().signIn(phone,password);
+            final String accountId = CallAPI.get().signIn(phone,password);
             if(accountId.length() == 3){
                 handler.post(new Runnable() {
                     @Override
@@ -53,8 +51,6 @@ public class LoginService extends IntentService {
                 LoginService.this.startActivity(signIn);
             }
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
             e.printStackTrace();
         }
     }

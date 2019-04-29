@@ -118,7 +118,7 @@ public class PlayerBroadcastReceiver extends BroadcastReceiver {
             int songPosition = intent.getIntExtra("songPosition",-1);
             if(songPosition != -1)
                 discViewPager.setCurrentItem(songPosition);
-            final int songPicId = intent.getIntExtra("songPicId",-1);
+            final long songPicId = intent.getLongExtra("songPicId",-1);
             if(songPicId != -1){
                 final Handler handler = new Handler();
                 new Thread(new Runnable() {
@@ -126,7 +126,7 @@ public class PlayerBroadcastReceiver extends BroadcastReceiver {
                     public void run() {
                         try {
                             float aspectRatio = (float) MainActivity.RESOURCES.getDisplayMetrics().widthPixels / MainActivity.RESOURCES.getDisplayMetrics().heightPixels;
-                            Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(MainActivity.PATH + "/pic/" + songPicId + ".jpg"));
+                            Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(MainActivity.PATH + "/album_pic/" + songPicId + ".jpg"));
                             int cropBitmapWidth;
                             int cropBitmapHeight;
                             if(bitmap.getWidth() >= bitmap.getHeight()){

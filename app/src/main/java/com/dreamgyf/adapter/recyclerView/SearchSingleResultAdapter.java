@@ -9,11 +9,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.dreamgyf.R;
+import com.dreamgyf.activity.MainActivity;
 import com.dreamgyf.entity.Song;
 import com.dreamgyf.service.CallAPI;
-import com.dreamgyf.service.ResponseProcessing;
-
-import org.json.JSONException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,21 +35,21 @@ public class SearchSingleResultAdapter extends RecyclerView.Adapter<SearchSingle
 
     public static class SearchResultViewHolder extends RecyclerView.ViewHolder{
 
-        private TextView nameTextView;
+        private TextView title;
 
-        private TextView infoTextView;
+        private TextView subtitle;
 
         public SearchResultViewHolder(@NonNull View itemView) {
             super(itemView);
-            nameTextView = itemView.findViewById(R.id.name_textView);
-            infoTextView = itemView.findViewById(R.id.info_textView);
+            title = itemView.findViewById(R.id.title);
+            subtitle = itemView.findViewById(R.id.subtitle);
         }
     }
 
     @NonNull
     @Override
     public SearchResultViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.search_single_viewpage_recycleview_item,viewGroup,false);
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.song_recycleview_item,viewGroup,false);
         SearchResultViewHolder viewHolder = new SearchResultViewHolder(view);
         view.setOnClickListener(this);
         return viewHolder;
@@ -59,16 +57,16 @@ public class SearchSingleResultAdapter extends RecyclerView.Adapter<SearchSingle
 
     @Override
     public void onBindViewHolder(@NonNull SearchResultViewHolder viewHolder, int i) {
-        viewHolder.nameTextView.setText(songs.get(i).getName());
+        viewHolder.title.setText(songs.get(i).getName());
         String artists = "";
-        for(int j = 0;j < songs.get(i).getArtists().size();j++)
+        for(int j = 0;j < songs.get(i).getAr().size();j++)
         {
-            if(j == songs.get(i).getArtists().size() - 1)
-                artists += songs.get(i).getArtists().get(j).getName();
+            if(j == songs.get(i).getAr().size() - 1)
+                artists += songs.get(i).getAr().get(j).getName();
             else
-                artists += songs.get(i).getArtists().get(j).getName() + "/";
+                artists += songs.get(i).getAr().get(j).getName() + "/";
         }
-        viewHolder.infoTextView.setText(artists + "-" + songs.get(i).getAlbum().getName());
+        viewHolder.subtitle.setText(artists + "-" + songs.get(i).getAl().getName());
     }
 
     @Override
@@ -113,13 +111,12 @@ public class SearchSingleResultAdapter extends RecyclerView.Adapter<SearchSingle
     public void addSongs(){
         if(keywords == null)
             throw new RuntimeException("no keywords");
-        Thread thread = new Thread(new Runnable() {
+        MainActivity.executorService.execute(new Thread(new Runnable() {
             @Override
             public void run() {
                 final String response;
                 try {
-                    response = CallAPI.get().search(keywords,1,songs.size());
-                    final List<Song> songList = ResponseProcessing.get().searchSingle(response);
+                    final List<Song> songList = CallAPI.get().search(keywords,1,songs.size());
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -129,12 +126,9 @@ public class SearchSingleResultAdapter extends RecyclerView.Adapter<SearchSingle
                     });
                 } catch (IOException e) {
                     e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
             }
-        });
-        executorService.execute(thread);
+        }));
     }
 
     public void clear(){

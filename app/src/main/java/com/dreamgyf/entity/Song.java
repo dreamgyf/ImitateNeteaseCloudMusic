@@ -5,27 +5,39 @@ import java.util.List;
 
 public class Song implements Serializable{
 
-    private int id;
     private String name;
-    private List<Artist> artists ;
-    private Album album;
-    private int duration;
-    private int copyrightId;
-    private int status;
-    private List<String> alias ;
-    private int rtype;
-    private int ftype;
-    private int mvid;
+    private long id;
+    private int pst;
+    private int t;
+    private List<Ar> ar;
+    private List<String> alia;
+    private int pop;
+    private int st;
+    private String rt;
     private int fee;
-    private String rUrl;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
+    private int v;
+    private String crbt;
+    private String cf;
+    private Al al;
+    private long dt;
+    private H h;
+    private M m;
+    private L l;
+    private String a;
+    private String cd;
+    private int no;
+    private String rtUrl;
+    private int ftype;
+    private List<String> rtUrls;
+    private int djId;
+    private int copyright;
+    private int s_id;
+    private int mst;
+    private int cp;
+    private int mv;
+    private int rtype;
+    private String rurl;
+    private long publishTime;
 
     public String getName() {
         return name;
@@ -35,76 +47,68 @@ public class Song implements Serializable{
         this.name = name;
     }
 
-    public List<Artist> getArtists() {
-        return artists;
+    public long getId() {
+        return id;
     }
 
-    public void setArtists(List<Artist> artists) {
-        this.artists = artists;
+    public void setId(long id) {
+        this.id = id;
     }
 
-    public Album getAlbum() {
-        return album;
+    public int getPst() {
+        return pst;
     }
 
-    public void setAlbum(Album album) {
-        this.album = album;
+    public void setPst(int pst) {
+        this.pst = pst;
     }
 
-    public int getDuration() {
-        return duration;
+    public int getT() {
+        return t;
     }
 
-    public void setDuration(int duration) {
-        this.duration = duration;
+    public void setT(int t) {
+        this.t = t;
     }
 
-    public int getCopyrightId() {
-        return copyrightId;
+    public List<Ar> getAr() {
+        return ar;
     }
 
-    public void setCopyrightId(int copyrightId) {
-        this.copyrightId = copyrightId;
+    public void setAr(List<Ar> ar) {
+        this.ar = ar;
     }
 
-    public int getStatus() {
-        return status;
+    public List<String> getAlia() {
+        return alia;
     }
 
-    public void setStatus(int status) {
-        this.status = status;
+    public void setAlia(List<String> alia) {
+        this.alia = alia;
     }
 
-    public List<String> getAlias() {
-        return alias;
+    public int getPop() {
+        return pop;
     }
 
-    public void setAlias(List<String> alias) {
-        this.alias = alias;
+    public void setPop(int pop) {
+        this.pop = pop;
     }
 
-    public int getRtype() {
-        return rtype;
+    public int getSt() {
+        return st;
     }
 
-    public void setRtype(int rtype) {
-        this.rtype = rtype;
+    public void setSt(int st) {
+        this.st = st;
     }
 
-    public int getFtype() {
-        return ftype;
+    public String getRt() {
+        return rt;
     }
 
-    public void setFtype(int ftype) {
-        this.ftype = ftype;
-    }
-
-    public int getMvid() {
-        return mvid;
-    }
-
-    public void setMvid(int mvid) {
-        this.mvid = mvid;
+    public void setRt(String rt) {
+        this.rt = rt;
     }
 
     public int getFee() {
@@ -115,11 +119,187 @@ public class Song implements Serializable{
         this.fee = fee;
     }
 
-    public String getrUrl() {
-        return rUrl;
+    public int getV() {
+        return v;
     }
 
-    public void setrUrl(String rUrl) {
-        this.rUrl = rUrl;
+    public void setV(int v) {
+        this.v = v;
+    }
+
+    public String getCrbt() {
+        return crbt;
+    }
+
+    public void setCrbt(String crbt) {
+        this.crbt = crbt;
+    }
+
+    public String getCf() {
+        return cf;
+    }
+
+    public void setCf(String cf) {
+        this.cf = cf;
+    }
+
+    public Al getAl() {
+        return al;
+    }
+
+    public void setAl(Al al) {
+        this.al = al;
+    }
+
+    public long getDt() {
+        return dt;
+    }
+
+    public void setDt(long dt) {
+        this.dt = dt;
+    }
+
+    public H getH() {
+        return h;
+    }
+
+    public void setH(H h) {
+        this.h = h;
+    }
+
+    public M getM() {
+        return m;
+    }
+
+    public void setM(M m) {
+        this.m = m;
+    }
+
+    public L getL() {
+        return l;
+    }
+
+    public void setL(L l) {
+        this.l = l;
+    }
+
+    public String getA() {
+        return a;
+    }
+
+    public void setA(String a) {
+        this.a = a;
+    }
+
+    public String getCd() {
+        return cd;
+    }
+
+    public void setCd(String cd) {
+        this.cd = cd;
+    }
+
+    public int getNo() {
+        return no;
+    }
+
+    public void setNo(int no) {
+        this.no = no;
+    }
+
+    public String getRtUrl() {
+        return rtUrl;
+    }
+
+    public void setRtUrl(String rtUrl) {
+        this.rtUrl = rtUrl;
+    }
+
+    public int getFtype() {
+        return ftype;
+    }
+
+    public void setFtype(int ftype) {
+        this.ftype = ftype;
+    }
+
+    public List<String> getRtUrls() {
+        return rtUrls;
+    }
+
+    public void setRtUrls(List<String> rtUrls) {
+        this.rtUrls = rtUrls;
+    }
+
+    public int getDjId() {
+        return djId;
+    }
+
+    public void setDjId(int djId) {
+        this.djId = djId;
+    }
+
+    public int getCopyright() {
+        return copyright;
+    }
+
+    public void setCopyright(int copyright) {
+        this.copyright = copyright;
+    }
+
+    public int getS_id() {
+        return s_id;
+    }
+
+    public void setS_id(int s_id) {
+        this.s_id = s_id;
+    }
+
+    public int getMst() {
+        return mst;
+    }
+
+    public void setMst(int mst) {
+        this.mst = mst;
+    }
+
+    public int getCp() {
+        return cp;
+    }
+
+    public void setCp(int cp) {
+        this.cp = cp;
+    }
+
+    public int getMv() {
+        return mv;
+    }
+
+    public void setMv(int mv) {
+        this.mv = mv;
+    }
+
+    public int getRtype() {
+        return rtype;
+    }
+
+    public void setRtype(int rtype) {
+        this.rtype = rtype;
+    }
+
+    public String getRurl() {
+        return rurl;
+    }
+
+    public void setRurl(String rurl) {
+        this.rurl = rurl;
+    }
+
+    public long getPublishTime() {
+        return publishTime;
+    }
+
+    public void setPublishTime(long publishTime) {
+        this.publishTime = publishTime;
     }
 }

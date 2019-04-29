@@ -89,6 +89,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textColor="@color/colorFontBlack"
                         android:text="播放全部"/>
 
                 </LinearLayout>

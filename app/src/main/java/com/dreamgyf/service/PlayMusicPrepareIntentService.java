@@ -6,9 +6,8 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.dreamgyf.entity.Song;
 import com.dreamgyf.entity.SongData;
+import com.dreamgyf.util.FileUtil;
 import com.kingsoft.media.httpcache.KSYProxyService;
-
-import org.json.JSONException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -77,15 +76,15 @@ public class PlayMusicPrepareIntentService extends IntentService {
         String url = null;
         byte[] songPicByte = null;
         try {
-            final String filePath = path + "/songs/" + song.getId() + ".mp3";
-            String picPath = path + "/pic/" + song.getAlbum().getId() + ".jpg";
+            final String filePath = path + "/song/" + song.getId() + ".mp3";
+            String picPath = path + "/album_pic/" + song.getAl().getPic() + ".jpg";
             File picFile = new File(picPath);
             if(!picFile.exists()) {
                 if (!picFile.getParentFile().exists()) {
                     if (!picFile.getParentFile().mkdirs())
                         throw new RuntimeException("create file error");
                 }
-                InputStream picStream = ResponseProcessing.get().songPicStream(songList.get(songPosition).getId());
+                InputStream picStream = FileUtil.getInputStreamFromUrl(song.getAl().getPicUrl());
                 writeFile(picStream,picFile);
             }
             songPicReady.set(songPosition,true);
@@ -95,7 +94,7 @@ public class PlayMusicPrepareIntentService extends IntentService {
                     if(!file.getParentFile().mkdirs())
                         throw new RuntimeException("create file error");
                 }
-                SongData songData = ResponseProcessing.get().getSong(CallAPI.get().getSong(song.getId())).get(0);
+                SongData songData = CallAPI.get().getSongData(String.valueOf(song.getId())).get(0);
                 url = ksyProxyService.getProxyUrl(songData.getUrl());
                 final InputStream in = getSongStream(url);
                 new Thread(new Runnable() {
@@ -107,23 +106,21 @@ public class PlayMusicPrepareIntentService extends IntentService {
             } else {
                 url = file.toURI().toString();
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
         Intent toPlayMusicService = new Intent(this,PlayMusicService.class);
         toPlayMusicService.putExtra("songName",song.getName());
         String artists = "";
-        for(int j = 0;j < songList.get(songPosition).getArtists().size();j++)
+        for(int j = 0;j < songList.get(songPosition).getAr().size();j++)
         {
-            if(j == songList.get(songPosition).getArtists().size() - 1)
-                artists += songList.get(songPosition).getArtists().get(j).getName();
+            if(j == songList.get(songPosition).getAr().size() - 1)
+                artists += songList.get(songPosition).getAr().get(j).getName();
             else
-                artists += songList.get(songPosition).getArtists().get(j).getName() + "/";
+                artists += songList.get(songPosition).getAr().get(j).getName() + "/";
         }
         toPlayMusicService.putExtra("artists",artists);
-        toPlayMusicService.putExtra("songPicId",song.getAlbum().getId());
+        toPlayMusicService.putExtra("songPicId",song.getAl().getPic());
         toPlayMusicService.putExtra("dataSource",url);
         toPlayMusicService.putExtra("songPosition",songPosition);
         startService(toPlayMusicService);

@@ -49,7 +49,7 @@ public class PlayMusicService extends Service {
 
     private String artists;
 
-    private int songPicId;
+    private long songPicId;
 
     private int songPosition;
 
@@ -78,7 +78,7 @@ public class PlayMusicService extends Service {
 
         songName = intent.getStringExtra("songName");
         artists = intent.getStringExtra("artists");
-        songPicId = intent.getIntExtra("songPicId",-1);
+        songPicId = intent.getLongExtra("songPicId",-1);
         songPosition = intent.getIntExtra("songPosition",-1);
         String dataSource = intent.getStringExtra("dataSource");
         try {

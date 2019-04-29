@@ -8,7 +8,7 @@
     android:background="@drawable/selector_item_selected">
 
     <TextView
-        android:id="@+id/name_textView"
+        android:id="@+id/title"
         android:textSize="15sp"
         android:maxLines="1"
         android:ellipsize="end"
@@ -21,14 +21,14 @@
         android:layout_marginStart="7dp"/>
 
     <TextView
-        android:id="@+id/info_textView"
+        android:id="@+id/subtitle"
         android:textSize="10sp"
         android:maxLines="1"
         android:ellipsize="end"
         android:textColor="@color/infoFont"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/name_textView"
+        app:layout_constraintTop_toBottomOf="@+id/title"
         android:layout_marginTop="5dp"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="7dp"

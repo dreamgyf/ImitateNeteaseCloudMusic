@@ -50,12 +50,12 @@ public class PlayListStaticAdapter {
         public void onBindViewHolder(@NonNull PlayListViewHolder playListViewHolder, int i) {
             playListViewHolder.title.setText(PlayMusicPrepareIntentService.songList.get(i).getName());
             String artists = "";
-            for(int j = 0;j < PlayMusicPrepareIntentService.songList.get(i).getArtists().size();j++)
+            for(int j = 0;j < PlayMusicPrepareIntentService.songList.get(i).getAr().size();j++)
             {
-                if(j == PlayMusicPrepareIntentService.songList.get(i).getArtists().size() - 1)
-                    artists += PlayMusicPrepareIntentService.songList.get(i).getArtists().get(j).getName();
+                if(j == PlayMusicPrepareIntentService.songList.get(i).getAr().size() - 1)
+                    artists += PlayMusicPrepareIntentService.songList.get(i).getAr().get(j).getName();
                 else
-                    artists += PlayMusicPrepareIntentService.songList.get(i).getArtists().get(j).getName() + "/";
+                    artists += PlayMusicPrepareIntentService.songList.get(i).getAr().get(j).getName() + "/";
             }
             playListViewHolder.subtitle.setText(" - " + artists);
         }

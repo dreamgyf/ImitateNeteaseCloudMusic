@@ -248,6 +248,14 @@ public class MainActivity extends AppCompatActivity {
         collectSongLists.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL));
         collectSongListAdapter = new SongListAdapter();
         collectSongLists.setAdapter(collectSongListAdapter);
+        collectSongListAdapter.addOnItemClickListener(new SongListAdapter.OnItemClickListener() {
+            @Override
+            public void onClick(RecyclerView recyclerView, View view, int position, SongList songList) {
+                Intent intent = new Intent(MainActivity.this,SongListActivity.class);
+                intent.putExtra("songList",songList);
+                startActivity(intent);
+            }
+        });
     }
 
     private void initDrawerToggle()

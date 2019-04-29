@@ -60,11 +60,11 @@ public class PlayerBarBroadcastReceiver extends BroadcastReceiver {
         if(action.equals(PlayMusicService.UPDATE_PLAYER_UI_ACTION)){
             String title = intent.getStringExtra("title");
             String subtitle = intent.getStringExtra("subtitle");
-            int songPicId = intent.getIntExtra("songPicId",-1);
+            long songPicId = intent.getLongExtra("songPicId",-1);
             Bitmap bitmap = null;
             if(songPicId != -1){
                 try {
-                    bitmap = BitmapFactory.decodeStream(new FileInputStream(MainActivity.PATH + "/pic/" + songPicId + ".jpg"));
+                    bitmap = BitmapFactory.decodeStream(new FileInputStream(MainActivity.PATH + "/album_pic/" + songPicId + ".jpg"));
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
