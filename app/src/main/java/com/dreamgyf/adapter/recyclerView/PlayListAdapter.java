@@ -47,6 +47,8 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.PlayLi
     @Override
     public void onBindViewHolder(@NonNull PlayListViewHolder playListViewHolder, int i) {
         playListViewHolder.trumpet.setVisibility(View.GONE);
+        playListViewHolder.title.setTextColor(MainActivity.RESOURCES.getColor(R.color.colorFontBlack));
+        playListViewHolder.subtitle.setTextColor(MainActivity.RESOURCES.getColor(R.color.infoFont));
         playListViewHolder.title.setText(PlayMusicPrepareIntentService.songList.get(i).getName());
         String artists = "";
         for(int j = 0;j < PlayMusicPrepareIntentService.songList.get(i).getAr().size();j++)

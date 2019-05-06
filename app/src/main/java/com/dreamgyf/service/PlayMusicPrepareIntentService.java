@@ -2,6 +2,7 @@ package com.dreamgyf.service;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 
 import com.dreamgyf.entity.Song;
 import com.dreamgyf.entity.SongData;
@@ -46,8 +47,6 @@ public class PlayMusicPrepareIntentService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         int init = intent.getIntExtra("init",-1);
         Song song = (Song) intent.getSerializableExtra("song");
-        Intent broadcast = new Intent(PlayMusicService.UPDATE_PLAY_LIST_UI_ACTION);
-        broadcast.putExtra("preSongPosition",songPosition);
         //加入播放列表
         for(int i = 0;i < songList.size();i++){
             if(songList.get(i).getId() == song.getId()){
@@ -71,8 +70,9 @@ public class PlayMusicPrepareIntentService extends IntentService {
             songPosition = 0;
         }
         DataManage.setSongPosition(this,songPosition);
-        broadcast.putExtra("nextSongPosition",songPosition);
-//        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
+        Intent broadcast = new Intent(PlayMusicService.UPDATE_PLAY_LIST_UI_ACTION);
+        broadcast.putExtra("songPosition",songPosition);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
         String url = null;
         byte[] songPicByte = null;
         try {
