@@ -245,6 +245,7 @@ public class SearchActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(playerBarBroadcastReceiver);
+        playListBottomSheetDialog.unregisterReceiver();
         super.onDestroy();
     }
 

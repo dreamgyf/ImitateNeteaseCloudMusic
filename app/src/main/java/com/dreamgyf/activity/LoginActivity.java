@@ -13,6 +13,7 @@ import android.widget.EditText;
 
 import com.dreamgyf.R;
 import com.dreamgyf.service.LoginService;
+import com.dreamgyf.util.DataManage;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -64,6 +65,7 @@ public class LoginActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         final String phone = phoneNumberEditText.getText().toString();
                         final String password = passwordEditText.getText().toString();
+                        DataManage.saveAccountInfo(LoginActivity.this,phone,password);
                         Intent intent = new Intent(LoginActivity.this, LoginService.class);
                         intent.putExtra("phone",phone);
                         intent.putExtra("password",password);

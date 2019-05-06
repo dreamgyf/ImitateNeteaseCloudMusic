@@ -94,6 +94,22 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.PlayLi
         int position = recyclerView.getChildAdapterPosition(v);
         if(onItemClickListener != null){
             onItemClickListener.onItemClick(recyclerView,v,position,PlayMusicPrepareIntentService.songList.get(position));
+//            Log.d("?","点击了" + position);
+//            for(int i = 0;i < recyclerView.getChildCount();i++){
+//                View view = recyclerView.getChildAt(i);
+//                ImageView imageView = view.findViewById(R.id.trumpet);
+//                TextView title = view.findViewById(R.id.title);
+//                TextView subtitle = view.findViewById(R.id.subtitle);
+//                if(i == position){
+//                    imageView.setVisibility(View.VISIBLE);
+//                    title.setTextColor(MainActivity.RESOURCES.getColor(R.color.colorNeteaseRed));
+//                    subtitle.setTextColor(MainActivity.RESOURCES.getColor(R.color.colorNeteaseRed));
+//                } else {
+//                    imageView.setVisibility(View.GONE);
+//                    title.setTextColor(MainActivity.RESOURCES.getColor(R.color.colorFontBlack));
+//                    subtitle.setTextColor(MainActivity.RESOURCES.getColor(R.color.infoFont));
+//                }
+//            }
         }
     }
 }

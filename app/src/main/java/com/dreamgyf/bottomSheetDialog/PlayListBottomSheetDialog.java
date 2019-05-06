@@ -32,6 +32,8 @@ public class PlayListBottomSheetDialog extends BottomSheetDialog {
 
     private TextView modeText;
 
+    private MyReceiver myReceiver;
+
     public PlayListBottomSheetDialog(@NonNull final Context context, PlayListAdapter playListAdapter) {
         super(context);
         this.context = context;
@@ -61,11 +63,27 @@ public class PlayListBottomSheetDialog extends BottomSheetDialog {
 
 
 
-        MyReceiver myReceiver = new MyReceiver();
+        myReceiver = new MyReceiver();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(PlayMusicService.UPDATE_PLAY_LIST_UI_ACTION);
         intentFilter.addAction(PlayMusicService.UPDATE_MODE_UI_ACTION);
         LocalBroadcastManager.getInstance(context).registerReceiver(myReceiver,intentFilter);
+
+//        for(int i = 0;i < recyclerView.getChildCount();i++) {
+//            View view = recyclerView.getChildAt(i);
+//            ImageView imageView = view.findViewById(R.id.trumpet);
+//            TextView title = view.findViewById(R.id.title);
+//            TextView subtitle = view.findViewById(R.id.subtitle);
+//            if(PlayMusicPrepareIntentService.songPosition == i){
+//                imageView.setVisibility(View.VISIBLE);
+//                title.setTextColor(MainActivity.RESOURCES.getColor(R.color.colorNeteaseRed));
+//                subtitle.setTextColor(MainActivity.RESOURCES.getColor(R.color.colorNeteaseRed));
+//            } else {
+//                imageView.setVisibility(View.GONE);
+//                title.setTextColor(MainActivity.RESOURCES.getColor(R.color.colorFontBlack));
+//                subtitle.setTextColor(MainActivity.RESOURCES.getColor(R.color.infoFont));
+//            }
+//        }
     }
 
     public class MyReceiver extends BroadcastReceiver{
@@ -74,26 +92,24 @@ public class PlayListBottomSheetDialog extends BottomSheetDialog {
             String action = intent.getAction();
             //正在播放的歌曲标红
             if(action.equals(PlayMusicService.UPDATE_PLAY_LIST_UI_ACTION)){
-                int previousSongPosition = intent.getIntExtra("previousSongPosition",-1);
+                int preSongPosition = intent.getIntExtra("preSongPosition",-1);
                 int nextSongPosition = intent.getIntExtra("nextSongPosition",-1);
-                if(previousSongPosition != -1 && nextSongPosition != -1){
-                    if(previousSongPosition < recyclerView.getChildCount()){
-                        View previousView = recyclerView.getChildAt(previousSongPosition);
-                        ImageView previousImageView = previousView.findViewById(R.id.trumpet);
-                        TextView previousTitle = previousView.findViewById(R.id.title);
-                        TextView previousSubtitle = previousView.findViewById(R.id.subtitle);
-                        previousImageView.setVisibility(View.GONE);
-                        previousTitle.setTextColor(MainActivity.RESOURCES.getColor(R.color.colorFontBlack));
-                        previousSubtitle.setTextColor(MainActivity.RESOURCES.getColor(R.color.infoFont));
-                    }
-                    if(nextSongPosition < recyclerView.getChildCount()){
-                        View nextView = recyclerView.getChildAt(nextSongPosition);
-                        ImageView nextImageView = nextView.findViewById(R.id.trumpet);
-                        TextView nextTitle = nextView.findViewById(R.id.title);
-                        TextView nextSubtitle = nextView.findViewById(R.id.subtitle);
-                        nextImageView.setVisibility(View.VISIBLE);
-                        nextTitle.setTextColor(MainActivity.RESOURCES.getColor(R.color.colorNeteaseRed));
-                        nextSubtitle.setTextColor(MainActivity.RESOURCES.getColor(R.color.colorNeteaseRed));
+                if(nextSongPosition != -1 && nextSongPosition < recyclerView.getChildCount()){
+                    View nextView = recyclerView.getChildAt(nextSongPosition);
+                    ImageView nextImageView = nextView.findViewById(R.id.trumpet);
+                    TextView nextTitle = nextView.findViewById(R.id.title);
+                    TextView nextSubtitle = nextView.findViewById(R.id.subtitle);
+                    nextImageView.setVisibility(View.VISIBLE);
+                    nextTitle.setTextColor(MainActivity.RESOURCES.getColor(R.color.colorNeteaseRed));
+                    nextSubtitle.setTextColor(MainActivity.RESOURCES.getColor(R.color.colorNeteaseRed));
+                    if(preSongPosition != -1 && nextSongPosition < recyclerView.getChildCount()){
+                        View preView = recyclerView.getChildAt(preSongPosition);
+                        ImageView preImageView = preView.findViewById(R.id.trumpet);
+                        TextView preTitle = preView.findViewById(R.id.title);
+                        TextView preSubtitle = preView.findViewById(R.id.subtitle);
+                        preImageView.setVisibility(View.GONE);
+                        preTitle.setTextColor(MainActivity.RESOURCES.getColor(R.color.colorFontBlack));
+                        preSubtitle.setTextColor(MainActivity.RESOURCES.getColor(R.color.infoFont));
                     }
                 }
             }
@@ -116,5 +132,9 @@ public class PlayListBottomSheetDialog extends BottomSheetDialog {
                 }
             }
         }
+    }
+
+    public void unregisterReceiver(){
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(myReceiver);
     }
 }

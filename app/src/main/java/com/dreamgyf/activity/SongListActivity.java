@@ -24,6 +24,7 @@ import com.dreamgyf.entity.SongList;
 import com.dreamgyf.service.CallAPI;
 import com.dreamgyf.service.PlayMusicPrepareIntentService;
 import com.dreamgyf.service.PlayMusicService;
+import com.dreamgyf.util.DataManage;
 
 import java.io.IOException;
 import java.util.List;
@@ -31,6 +32,8 @@ import java.util.List;
 public class SongListActivity extends AppCompatActivity {
 
     private SongList songList;
+
+    private List<Song> songs;
 
     private PlayerBarBroadcastReceiver playerBarBroadcastReceiver;
 
@@ -68,7 +71,7 @@ public class SongListActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    final List<Song> songs = CallAPI.get().getSongInSongList(String.valueOf(songList.getId()));
+                    songs = CallAPI.get().getSongInSongList(String.valueOf(songList.getId()));
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -79,6 +82,16 @@ public class SongListActivity extends AppCompatActivity {
                             songInListAdapter.addOnItemClickListener(new SongInListAdapter.OnItemClickListener() {
                                 @Override
                                 public void onItemClick(RecyclerView recyclerView, View view, int position, Song song) {
+                                    //更新播放列表
+                                    PlayMusicPrepareIntentService.songList.clear();
+                                    PlayMusicPrepareIntentService.songList.addAll(songs);
+                                    PlayMusicPrepareIntentService.songPicReady.clear();
+                                    for(int i = 0;i < PlayMusicPrepareIntentService.songList.size();i++){
+                                        PlayMusicPrepareIntentService.songPicReady.add(false);
+                                    }
+                                    DataManage.clearPlayList(SongListActivity.this);
+                                    DataManage.addPlayList(SongListActivity.this,songs);
+                                    PlayMusicPrepareIntentService.songPosition = -1;
                                     Intent toPrepareIntentService = new Intent(SongListActivity.this, PlayMusicPrepareIntentService.class);
                                     toPrepareIntentService.putExtra("song",song);
                                     startService(toPrepareIntentService);
@@ -163,6 +176,7 @@ public class SongListActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(playerBarBroadcastReceiver);
+        playListBottomSheetDialog.unregisterReceiver();
         super.onDestroy();
     }
 }

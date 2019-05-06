@@ -87,7 +87,8 @@ public class PlayMusicService extends Service {
             mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
-                    mp.start();
+                    if(intent.getIntExtra("init",-1) != 1)
+                        mp.start();
                     if(myReceiver == null){
                             //绑定广播事件
                             myReceiver = new MyReceiver();

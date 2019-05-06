@@ -19,11 +19,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginStart="10dp"/>
+        android:layout_marginStart="10dp"
+        android:textColor="@color/colorFontBlack"/>
     <TextView
         android:id="@+id/subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"/>
+        android:layout_gravity="center_vertical"
+        android:textColor="@color/infoFont"/>
 
 </LinearLayout>

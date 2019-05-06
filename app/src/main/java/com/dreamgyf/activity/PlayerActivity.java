@@ -342,6 +342,7 @@ public class PlayerActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(playerBroadcastReceiver);
+        playListBottomSheetDialog.unregisterReceiver();
         super.onDestroy();
     }
 

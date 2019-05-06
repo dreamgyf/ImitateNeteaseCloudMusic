@@ -2,10 +2,10 @@ package com.dreamgyf.service;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
 
 import com.dreamgyf.entity.Song;
 import com.dreamgyf.entity.SongData;
+import com.dreamgyf.util.DataManage;
 import com.dreamgyf.util.FileUtil;
 import com.kingsoft.media.httpcache.KSYProxyService;
 
@@ -44,23 +44,21 @@ public class PlayMusicPrepareIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Intent broadcast = new Intent(PlayMusicService.UPDATE_PLAY_LIST_UI_ACTION);
-        if(songPosition >= 0){
-            broadcast.putExtra("previousSongPosition",songPosition);
-        } else {
-            broadcast.putExtra("previousSongPosition",0);
-        }
+        int init = intent.getIntExtra("init",-1);
         Song song = (Song) intent.getSerializableExtra("song");
+        Intent broadcast = new Intent(PlayMusicService.UPDATE_PLAY_LIST_UI_ACTION);
+        broadcast.putExtra("preSongPosition",songPosition);
         //加入播放列表
         for(int i = 0;i < songList.size();i++){
             if(songList.get(i).getId() == song.getId()){
-                if(songPosition == i)
+                if(songPosition == i && init == -1)
                     return;
                 songPosition = i;
                 break;
             }
             if(i == songList.size() - 1){
                 songList.add(song);
+                DataManage.addPlayList(this,song);
                 songPicReady.add(false);
                 songPosition = i + 1;
                 break;
@@ -68,11 +66,13 @@ public class PlayMusicPrepareIntentService extends IntentService {
         }
         if(songList.isEmpty()){
             songList.add(song);
+            DataManage.addPlayList(this,song);
             songPicReady.add(false);
             songPosition = 0;
         }
+        DataManage.setSongPosition(this,songPosition);
         broadcast.putExtra("nextSongPosition",songPosition);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
+//        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
         String url = null;
         byte[] songPicByte = null;
         try {
@@ -123,6 +123,8 @@ public class PlayMusicPrepareIntentService extends IntentService {
         toPlayMusicService.putExtra("songPicId",song.getAl().getPic());
         toPlayMusicService.putExtra("dataSource",url);
         toPlayMusicService.putExtra("songPosition",songPosition);
+        if(init == 1)
+            toPlayMusicService.putExtra("init",1);
         startService(toPlayMusicService);
     }
 

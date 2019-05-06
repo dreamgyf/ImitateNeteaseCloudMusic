@@ -35,8 +35,10 @@ import com.dreamgyf.entity.Song;
 import com.dreamgyf.entity.SongList;
 import com.dreamgyf.entity.UserDetail;
 import com.dreamgyf.service.CallAPI;
+import com.dreamgyf.service.LoginService;
 import com.dreamgyf.service.PlayMusicPrepareIntentService;
 import com.dreamgyf.service.PlayMusicService;
+import com.dreamgyf.util.DataManage;
 import com.dreamgyf.util.ImageUtil;
 import com.dreamgyf.view.RoundImageView;
 
@@ -109,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
         RESOURCES = getResources();
         PATH = getExternalFilesDir("").getAbsolutePath();
 
+        initData();
         initToolbar();
         initDrawerToggle();
         initViewPager();
@@ -121,6 +124,33 @@ public class MainActivity extends AppCompatActivity {
         initBroadcastReceiver();
 
 
+    }
+
+    private void initData(){
+        //登录
+        Map<String,String> accountInfo = DataManage.getAccountInfo(this);
+        if(accountInfo.size() == 2){
+            String phone = accountInfo.get("phone");
+            String password = accountInfo.get("password");
+            Intent intent = new Intent(this, LoginService.class);
+            intent.putExtra("phone",phone);
+            intent.putExtra("password",password);
+            startService(intent);
+        }
+        //加载播放列表
+        List<Song> playList = DataManage.getPlayList(this);
+        PlayMusicPrepareIntentService.songList.addAll(playList);
+        for(int i = 0;i < PlayMusicPrepareIntentService.songList.size();i++){
+            PlayMusicPrepareIntentService.songPicReady.add(false);
+        }
+        int position = DataManage.getSongPosition(this);
+        if(position != -1){
+            PlayMusicPrepareIntentService.songPosition = position;
+            Intent initPlayerUI = new Intent(this,PlayMusicPrepareIntentService.class);
+            initPlayerUI.putExtra("song",PlayMusicPrepareIntentService.songList.get(position));
+            initPlayerUI.putExtra("init",1);
+            startService(initPlayerUI);
+        }
     }
 
     private void initToolbar()
@@ -406,6 +436,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(playerBarBroadcastReceiver);
+        playListBottomSheetDialog.unregisterReceiver();
         super.onDestroy();
         System.exit(0);
     }
